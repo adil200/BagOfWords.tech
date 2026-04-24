@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 24% 9%; /* #1A202C Very Dark Blue/Charcoal Gray */
+    --foreground: 215 28% 85%; /* #E2E8F0 Light Gray for text */
+
+    --card: 220 25% 12%; /* #212A3B Slightly lighter than background */
+    --card-foreground: 215 28% 85%; /* Light Gray */
+
+    --popover: 220 25% 12%; /* Slightly lighter than background */
+    --popover-foreground: 215 28% 85%; /* Light Gray */
+
+    --primary: 210 40% 98%; /* #F7FAFC Light Off-White for headings */
+    --primary-foreground: 222 24% 9%; /* Very Dark Blue/Charcoal for text on primary-bg */
+
+    --secondary: 220 25% 18%; /* Medium-dark gray for secondary buttons/elements */
+    --secondary-foreground: 215 28% 80%; /* Lighter gray text for on-secondary */
+
+    --muted: 220 25% 15%; /* Darker than secondary for muted backgrounds */
+    --muted-foreground: 215 20% 50%; /* Darker muted text */
+
+    --accent: 193 97% 49%; /* #00CFDE Luminous Cyan */
+    --accent-foreground: 222 24% 9%; /* Dark text on Luminous Cyan for contrast */
+
+    --destructive: 0 75% 55%; /* Adjusted red for dark mode */
+    --destructive-foreground: 0 0% 98%; /* White */
+
+    --border: 220 25% 25%; /* Darker border */
+    --input: 220 25% 25%; /* Darker input background */
+    --ring: 193 97% 55%; /* Brighter Luminous Cyan for focus rings */
+    
+    --radius: 0.5rem; /* Base radius for rounded corners */
+
+    --chart-1: 193 97% 49%; /* Luminous Cyan */
+    --chart-2: 272 90% 60%; /* Bright Magenta/Purple #D946EF */
+    --chart-3: 210 100% 60%; /* Brighter Electric Blue #3B82F6 */
+    --chart-4: 193 90% 55%; /* Variation of Luminous Cyan */
+    --chart-5: 272 80% 65%; /* Variation of Bright Magenta/Purple */
+
+    /* Sidebar colors - Assuming a consistently dark sidebar regardless of main theme */
+    --sidebar-background: 222 47% 11%; /* Dark Slate Gray for a professional look */
+    --sidebar-foreground: 210 40% 90%; /* Light Gray text for contrast */
+    --sidebar-primary: 193 97% 49%;    /* Luminous Cyan Accent - consistent with new light primary */
+    --sidebar-primary-foreground: 222 24% 9%; /* Dark text for contrast on Luminous Cyan */
+    --sidebar-accent: 193 97% 40%;     /* Darker Cyan for hover */
+    --sidebar-accent-foreground: 215 25% 90%;
+    --sidebar-border: 222 47% 20%;
+    --sidebar-ring: 193 97% 49%;      /* Luminous Cyan Accent */
+  }
+
+  /* Removed .dark class as dark theme is default */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-primary;
+  }
+  h1 { @apply text-4xl my-6; }
+  h2 { @apply text-3xl my-5; }
+  h3 { @apply text-2xl my-4; }
+  h4 { @apply text-xl my-3; }
+  p { @apply my-4 leading-relaxed text-foreground/90; } 
+  /* Links use accent color defined for each theme */
+  a { @apply text-accent hover:text-accent/80 transition-opacity hover:opacity-80; } 
+
+  pre {
+    @apply bg-muted/70 p-4 rounded-md overflow-x-auto my-4 shadow; 
+  }
+  code {
+    @apply bg-muted/50 text-accent px-1.5 py-1 rounded-md font-mono text-sm; 
+  }
+  pre code {
+    @apply bg-transparent p-0 text-inherit; 
+  }
+  .article-content h2 { @apply text-2xl font-semibold mt-8 mb-4; }
+  .article-content h3 { @apply text-xl font-semibold mt-6 mb-3; }
+  .article-content p { @apply mb-4 leading-relaxed; }
+  .article-content ul { @apply list-disc pl-6 mb-4; }
+  .article-content ol { @apply list-decimal pl-6 mb-4; }
+  .article-content blockquote { @apply border-l-4 border-accent pl-4 italic my-4 text-muted-foreground; }
+  .article-content a { @apply text-accent hover:opacity-80; } /* Ensure article links also follow this */
+
+  /* Increased spacing for list items within prose-lg article content */
+  .prose-lg.article-content ul > li,
+  .prose-lg.article-content ol > li {
+    @apply my-3; /* Equivalent to margin-top: 0.75rem; margin-bottom: 0.75rem; */
+  }
+
+  /* Offset for anchor links to account for sticky header */
+  .article-content h2[id],
+  .article-content h3[id] {
+    scroll-margin-top: 5.5rem; /* Header height (5rem = h-20) + 0.5rem buffer */
+  }
+
+  /* Code block with copy button styles */
+  .article-content pre {
+    @apply relative;
+  }
+
+  .article-content pre:hover .copy-code-button {
+    @apply opacity-100;
+  }
+
+  .copy-code-button {
+    @apply transition-opacity duration-200;
+  }
+}
