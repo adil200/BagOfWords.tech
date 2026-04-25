@@ -183,7 +183,7 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action (Newsletter) */}
-      <section id="newsletter" className="bg-muted/70 py-16 rounded-xl shadow-md">
+      <section id="newsletter" className="scroll-mt-24 bg-muted/70 py-16 rounded-xl shadow-md">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Stay Updated with BagOfWords</h2>
           <p className="text-lg text-foreground/80 mb-8 max-w-xl mx-auto">
