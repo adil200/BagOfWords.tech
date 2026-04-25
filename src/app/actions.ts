@@ -1,10 +1,9 @@
 'use server';
 
 import { serverDatabases } from '@/lib/appwrite-server';
-import { ID, Query } from 'node-appwrite';
-import type { Comment } from '@/types';
-import { Client, Users, MessagingProviderType, Query as AppwriteQuery } from 'node-appwrite';
+import { Client, Users, ID, Query, Query as AppwriteQuery } from 'node-appwrite';
 import { v4 as uuidv4 } from 'uuid';
+import type { Comment } from '@/types';
 
 const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
 const CONTACT_COLLECTION_ID = process.env.NEXT_PUBLIC_APPWRITE_CONTACT_COLLECTION_ID!;
@@ -21,10 +20,7 @@ export async function subscribeToNewsletter(prevState: any, formData: FormData) 
             return { success: false, message: 'Email is required' };
         }
 
-        // Extract name from email (everything before '@')
-        const name = email.split('@')[0];
-
-        // FIRST: Check if email already exists in newsletter collection
+        // Check if email already exists in newsletter collection
         try {
             const existingNewsletterSubscriptions = await serverDatabases.listDocuments(
                 DATABASE_ID,
@@ -47,88 +43,12 @@ export async function subscribeToNewsletter(prevState: any, formData: FormData) 
             };
         }
 
-        // Initialize Appwrite client and users
-        const client = new Client()
-            .setEndpoint('https://fra.cloud.appwrite.io/v1')
-            .setProject(PROJECT_ID)
-            .setKey(APPWRITE_API_KEY);
+        // Save to the newsletter collection and trigger the welcome email
+        const newsletterFormData = new FormData();
+        newsletterFormData.append('email', email);
+        const result = await subscribeToNewsletter1({}, newsletterFormData);
+        return result;
 
-        const users = new Users(client);
-
-        try {
-            // Check if user already exists by listing users with this email
-            const existingUsers = await users.list([
-                AppwriteQuery.equal('email', email)
-            ]);
-
-            if (existingUsers.total === 0) {
-                // User doesn't exist, create a new one
-                const userId = uuidv4();
-                // Generate a secure random password (user can reset it later if needed)
-                const randomPassword = `${uuidv4()}-${uuidv4()}`.substring(0, 32);
-                
-                await users.create(
-                    userId,
-                    email,
-                    undefined, // phone (optional)
-                    randomPassword, // password
-                    name // name extracted from email
-                );
-
-                // Add label to identify newsletter subscribers
-                try {
-                    await users.updateLabels(userId, ['newsletter_subscriber']);
-                    console.log('Newsletter subscriber label added to user:', userId);
-                } catch (labelError) {
-                    console.error('Error adding newsletter label:', labelError);
-                    // Continue even if label fails
-                }
-
-                console.log('User created successfully in Appwrite Auth:', userId);
-
-                // Create email target for this NEW user
-                try {
-                    const targetId = ID.unique();
-                    const providerId = process.env.EMAIL_PROVIDER_ID || 'default_email_provider';
-
-                    await users.createTarget(
-                        userId,
-                        targetId,
-                        MessagingProviderType.Email,
-                        email,
-                        providerId,
-                        'BagOfWords Newsletter Subscriber'
-                    );
-                    console.log('Email target created successfully');
-                } catch (targetError: any) {
-                    // Log but don't fail if target creation fails
-                    if (targetError.code === 409) {
-                        console.log('Email target already exists for this user');
-                    } else {
-                        console.error('Error creating email target:', targetError);
-                    }
-                }
-            } else {
-                console.log('User already exists in Appwrite Auth:', existingUsers.users[0].$id);
-            }
-
-            // Save to the newsletter collection
-            const newsletterFormData = new FormData();
-            newsletterFormData.append('email', email);
-            await subscribeToNewsletter1({}, newsletterFormData);
-
-            return {
-                success: true,
-                message: 'Successfully subscribed to our newsletter!'
-            };
-
-        } catch (error) {
-            console.error('Error creating user or subscribing:', error);
-            return {
-                success: false,
-                message: 'Failed to subscribe. Please try again later.'
-            };
-        }
     } catch (error) {
         console.error('Subscription error:', error);
         return {
@@ -212,11 +132,13 @@ export async function submitContactForm(prevState: any, formData: FormData) {
 export async function subscribeToNewsletter1(prevState: any, formData: FormData) {
     try {
         const email = formData.get('email') as string;
+        const name  = email ? email.split('@')[0] : '';
 
         if (!email) {
             return { success: false, message: 'Email is required' };
         }
 
+        // Write to newsletter DB
         const response = await serverDatabases.createDocument(
             DATABASE_ID,
             NEWSLETTER_COLLECTION_ID,
@@ -228,7 +150,38 @@ export async function subscribeToNewsletter1(prevState: any, formData: FormData)
         );
 
         console.log('Newsletter subscription successful:', response.$id);
-        return { success: true, message: 'Successfully subscribed to newsletter!' };
+
+        // Call the welcome_mail_ Appwrite Function directly via HTTP.
+        // This fires every time a row is inserted, regardless of auth state.
+        try {
+            const functionEndpoint = process.env.APPWRITE_FUNCTION_ENDPOINT; // e.g. https://fra.cloud.appwrite.io/v1/functions/<FUNCTION_ID>/executions
+            const apiKey           = process.env.APPWRITE_API_KEY;
+            const functionId       = process.env.WELCOME_MAIL_FUNCTION_ID;   // e.g. 68abc...
+
+            if (functionEndpoint && apiKey && functionId) {
+                const execResponse = await fetch(
+                    `${functionEndpoint}/v1/functions/${functionId}/executions`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Appwrite-Project': process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!,
+                            'X-Appwrite-Key': apiKey,
+                        },
+                        body: JSON.stringify({ email, name }),
+                    }
+                );
+                const execData = await execResponse.json();
+                console.log('welcome_mail_ function triggered:', execData.$id ?? execData);
+            } else {
+                console.warn('APPWRITE_FUNCTION_ENDPOINT, APPWRITE_API_KEY, or WELCOME_MAIL_FUNCTION_ID not set — skipping welcome email trigger');
+            }
+        } catch (fnErr) {
+            // Don't fail the subscription if the email trigger fails
+            console.error('Failed to trigger welcome_mail_ function:', fnErr);
+        }
+
+        return { success: true, message: 'Successfully subscribed to our newsletter!' };
     } catch (error) {
         console.error('Newsletter subscription error:', error);
         return { success: false, message: 'Failed to subscribe. Please try again.' };
