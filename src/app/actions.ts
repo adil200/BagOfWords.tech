@@ -168,7 +168,15 @@ export async function subscribeToNewsletter1(prevState: any, formData: FormData)
                             'X-Appwrite-Project': process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!,
                             'X-Appwrite-Key': apiKey,
                         },
-                        body: JSON.stringify({ email, name }),
+                        body: JSON.stringify({
+                            body: JSON.stringify({ email, name }),
+                            async: false,
+                            method: 'POST',
+                            path: '/',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
                     }
                 );
                 const execData = await execResponse.json();
