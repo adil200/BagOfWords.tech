@@ -123,7 +123,10 @@ export default function ContactPage() {
                           name="name"
                           placeholder="John Doe"
                           value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          onChange={(e) => {
+                            setName(e.target.value);
+                            if (status === 'success') setStatus('idle');
+                          }}
                           required
                           className="bg-background focus:border-accent"
                       />
@@ -136,7 +139,10 @@ export default function ContactPage() {
                           type="email"
                           placeholder="you@example.com"
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (status === 'success') setStatus('idle');
+                          }}
                           required
                           className="bg-background focus:border-accent"
                       />
@@ -150,7 +156,10 @@ export default function ContactPage() {
                         placeholder="Your message here..."
                         rows={6}
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        onChange={(e) => {
+                          setMessage(e.target.value);
+                          if (status === 'success') setStatus('idle');
+                        }}
                         required
                         className="bg-background focus:border-accent"
                     />
