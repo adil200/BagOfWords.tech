@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Github, Linkedin, Globe } from 'lucide-react';
+import { Github, Linkedin, Globe, Youtube } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export function Footer() {
@@ -33,6 +33,9 @@ export function Footer() {
               <Link href="https://www.linkedin.com/in/adilnaib/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-muted-foreground hover:text-accent">
                 <Linkedin className="h-5 w-5" />
               </Link>
+              <Link href="https://www.youtube.com/@AdilsBagOfWords" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-muted-foreground hover:text-red-500 transition-colors">
+                <Youtube className="h-5 w-5" />
+              </Link>
             </div>
           </div>
 
@@ -52,7 +55,7 @@ export function Footer() {
             <div className="sm:text-right">
               <h3 className="font-semibold text-primary mb-3">Company</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/about" className="hover:text-accent">About Us</Link></li>
+                <li><Link href="/about" className="hover:text-accent">About</Link></li>
                 <li><Link href="/contact" className="hover:text-accent">Contact</Link></li>
                 <li><Link href="/privacy-policy" className="hover:text-accent">Privacy Policy</Link></li>
                 <li><Link href="/terms-and-conditions" className="hover:text-accent">Terms &amp; Conditions</Link></li>

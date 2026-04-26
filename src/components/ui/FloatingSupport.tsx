@@ -116,11 +116,11 @@ export function FloatingSupport() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
       {/* The Popover */}
       <div
         className={`mb-4 transition-all duration-300 origin-bottom-right ${
-          isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
+          isOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-0 opacity-0'
         }`}
       >
         <div className="bg-card text-card-foreground border shadow-xl rounded-xl p-5 w-72 relative overflow-hidden">
@@ -207,8 +207,19 @@ export function FloatingSupport() {
                   <>Support ₹{amount}</>
                 )}
               </Button>
-              <p className="text-[10px] text-muted-foreground pt-1">
-                Payments are securely processed by <span className="text-white font-medium">Razorpay</span>.
+              <p className="text-[10px] text-muted-foreground pt-1 flex items-center justify-center gap-1">
+                Payments are securely processed by
+                <span className="flex items-center gap-1 font-medium text-foreground">
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    fill="currentColor" 
+                    className="h-3 w-3 text-[#3395FF]"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M22.436 0l-11.91 7.773-1.174 4.276 6.625-4.297L11.65 24h4.391l6.395-24zM14.26 10.098L3.389 17.166 1.564 24h9.008l3.688-13.902Z"/>
+                  </svg>
+                  Razorpay
+                </span>
               </p>
             </div>
           )}
@@ -218,7 +229,7 @@ export function FloatingSupport() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="h-14 w-14 rounded-full bg-card border border-border shadow-xl flex items-center justify-center hover:bg-accent/10 hover:border-accent/50 hover:scale-105 transition-all text-accent"
+        className="h-14 w-14 rounded-full bg-card border border-border shadow-xl flex items-center justify-center hover:bg-accent/10 hover:border-accent/50 hover:scale-105 transition-all text-accent pointer-events-auto"
         aria-label="Support me"
       >
         {isOpen ? <X size={24} /> : <Heart size={24} />}
