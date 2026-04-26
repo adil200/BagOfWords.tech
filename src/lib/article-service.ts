@@ -58,6 +58,33 @@ export async function getPublishedArticles(): Promise<any[]> {
       .filter((fileName) => fileName.endsWith('.mdx'))
       .map((fileName) => getArticleData(fileName));
 
+    // Inject the hardcoded interactive article
+    articles.push({
+      $id: 'how-gpts-llms-work',
+      $createdAt: '2025-11-08T00:00:00.000Z',
+      publishedAt: '2025-11-08T00:00:00.000Z',
+      slug: 'how-gpts-llms-work',
+      title: 'How GPTs/LLMs work? From prompt to output',
+      category: 'ai-fundamentals',
+      tags: ['LLMs', 'GPT', 'Transformers', 'NLP'],
+      author: {
+        id: '1',
+        name: 'Adil Naib',
+        avatarUrl: 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin',
+        bio: 'AI & ML enthusiast',
+      },
+      publishDate: new Date('2025-11-08T00:00:00.000Z'),
+      createdAt: '2025-11-08T00:00:00.000Z',
+      readingTime: '10 min read',
+      readTime: 10,
+      heroImageUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop',
+      excerpt: 'An interactive, animated exploration of how Large Language Models generate human-like text by processing enormous amounts of data.',
+      content: '', // Custom rendering via page.tsx
+      status: 'published',
+      featured: true,
+      views: 0,
+    });
+
     // Sort articles by date descending
     return articles.sort((a, b) => {
       if (a.publishDate < b.publishDate) {
@@ -81,6 +108,11 @@ export async function getArticleBySlug(slug: string): Promise<any | null> {
     
     if (fs.existsSync(fullPath)) {
       return getArticleData(`${slug}.mdx`);
+    }
+    
+    if (slug === 'how-gpts-llms-work') {
+      const all = await getPublishedArticles();
+      return all.find(a => a.slug === slug) || null;
     }
     
     return null;
