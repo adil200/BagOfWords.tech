@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'fra.cloud.appwrite.io',
             },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+            },
         ],
         formats: ['image/webp', 'image/avif'],
         deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -31,6 +35,11 @@ const nextConfig: NextConfig = {
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production',
     },
+    outputFileTracingIncludes: {
+        '/*': ['./src/content/articles/**/*'],
+        '/articles': ['./src/content/articles/**/*'],
+        '/articles/[slug]': ['./src/content/articles/**/*']
+    }
 };
 
 export default nextConfig;
