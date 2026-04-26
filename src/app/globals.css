@@ -113,4 +113,28 @@
   .copy-code-button {
     @apply transition-opacity duration-200;
   }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--accent) / 0.3);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent) / 0.8);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--accent) / 0.3) transparent;
+  }
 }

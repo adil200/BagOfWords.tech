@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Script from 'next/script';
 import GTagEvents from '@/components/layout/GTagEvents';
 import { GA_TRACKING_ID } from '@/lib/gtag';
+import { FloatingSupport } from '@/components/ui/FloatingSupport';
 
 export const metadata: Metadata = {
   title: 'BagOfWords',
@@ -67,6 +68,9 @@ export default function RootLayout({
         <GTagEvents /> {/* Component to handle route changes for GA */}
         {/* Simple Analytics Script - Added back */}
         <Script async src="https://scripts.simpleanalyticscdn.com/latest.js" strategy="afterInteractive" />
+        
+        {/* Floating Support Button */}
+        <FloatingSupport />
       </body>
     </html>
   );
