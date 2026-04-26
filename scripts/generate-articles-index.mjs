@@ -51,31 +51,6 @@ function generateIndex() {
       };
     });
 
-  // Inject hardcoded article
-  articles.push({
-    $id: 'how-gpts-llms-work',
-    $createdAt: '2025-11-08T00:00:00.000Z',
-    publishedAt: '2025-11-08T00:00:00.000Z',
-    slug: 'how-gpts-llms-work',
-    title: 'How GPTs/LLMs work? From prompt to output',
-    category: 'ai-fundamentals',
-    tags: ['LLMs', 'GPT', 'Transformers', 'NLP'],
-    author: {
-      id: '1',
-      name: 'Adil Naib',
-      avatarUrl: 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin',
-      bio: 'AI & ML enthusiast',
-    },
-    publishDate: '2025-11-08T00:00:00.000Z',
-    createdAt: '2025-11-08T00:00:00.000Z',
-    readingTime: '15 min read',
-    readTime: 15,
-    heroImageUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop',
-    excerpt: 'An interactive, animated exploration of how Large Language Models generate human-like text by processing enormous amounts of data.',
-    status: 'published',
-    featured: true,
-    views: 0,
-  });
 
   articles.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
 

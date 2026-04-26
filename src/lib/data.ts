@@ -3,7 +3,7 @@ import type { Author, Category, Article, Comment } from '@/types';
 import { FILE_IDS, BUCKET_ID, PROJECT_ID } from './file-mapping';
 
 // Helper functions for Appwrite URLs
-export const getAppwriteImageUrl = (filename: string, width?: number, height?: number) => {
+export const getAppwriteImageUrl = (filename: string) => {
   const fileId = FILE_IDS[filename as keyof typeof FILE_IDS];
 
   if (!fileId) {
@@ -11,14 +11,16 @@ export const getAppwriteImageUrl = (filename: string, width?: number, height?: n
     return '';
   }
 
-  const params = new URLSearchParams();
-  if (width) params.append('width', width.toString());
-  if (height) params.append('height', height.toString());
-  params.append('output', 'webp');
-  params.append('quality', '80');
-  params.append('project', PROJECT_ID);
+  // Return the RAW view URL so next/image can intercept and optimize it without double-processing
+  return `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=${PROJECT_ID}`;
+};
 
-  return `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${fileId}/preview?${params.toString()}`;
+export const getOptimizedHtmlImageUrl = (filename: string, width: number = 1080) => {
+  const rawUrl = getAppwriteImageUrl(filename);
+  if (!rawUrl) return '';
+  
+  // Wrap in Next.js built-in image optimizer for raw <img> tags
+  return `/_next/image?url=${encodeURIComponent(rawUrl)}&w=${width}&q=75`;
 };
 
 export const getAppwriteFileUrl = (filename: string) => {
@@ -326,18 +328,18 @@ export const articles: Article[] = [
                 <ul>
                     <li><strong>Refined Prompt Generation:</strong> Vertex AI can offer tools to help you refine your prompts, potentially suggesting improvements or variations to get better results from Imagen 3.
                         <figure class="my-6">
-                            <img src="${getAppwriteImageUrl('prompt.png')}" alt="Vertex AI prompt refinement feature for Imagen 3" loading="lazy" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI prompt">
+                            <img src="${getOptimizedHtmlImageUrl('prompt.png')}" alt="Vertex AI prompt refinement feature for Imagen 3" loading="lazy" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI prompt">
                         </figure>
                     </li>
                     <li><strong>High-Quality Export Options & More Control:</strong> Vertex AI often provides more granular control over generation parameters and options for exporting images at very high quality, suitable for professional use cases.
                         <figure class="my-6">
-                            <img src="${getAppwriteImageUrl('export.png')}" alt="Vertex AI high-quality export options for Imagen 3" loading="lazy" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI export">
+                            <img src="${getOptimizedHtmlImageUrl('export.png')}" alt="Vertex AI high-quality export options for Imagen 3" loading="lazy" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI export">
                         </figure>
                         <br>
                         <strong>Output:</strong>
                         <br>
                         <figure class="my-6">
-                            <img src="${getAppwriteImageUrl('Output3.png')}" alt="Output" loading="lazy" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI output">
+                            <img src="${getOptimizedHtmlImageUrl('Output3.png')}" alt="Output" loading="lazy" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI output">
                         </figure>
                     </li><br>
                     <li><strong>API Access:</strong> For programmatic use and integration into applications, Vertex AI provides API access to Imagen 3.</li>
@@ -373,7 +375,7 @@ export const articles: Article[] = [
             <li><strong>Prompt:</strong> <code>Generate an image of children playing football.</code></li>
             <li><strong>Result:</strong>
                 <figure class="my-6">
-                    <img src="${getAppwriteImageUrl('Output1.png')}" loading="lazy" alt="Imagen 3 generated image of children playing football" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="children football">
+                    <img src="${getOptimizedHtmlImageUrl('Output1.png')}" loading="lazy" alt="Imagen 3 generated image of children playing football" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="children football">
                 </figure>
             </li>
             <li><strong>Note:</strong> As discussed, Imagen 3 excels at rendering humans. However, generating images of children often requires explicit consent, project approval within Google Cloud, or specific parameter settings (like ensuring <code>person_generation</code> is not set to <code>BLOCK_CHILD</code> or <code>ALLOW_ADULT_ONLY</code> if that's the default for your access point). Always adhere to Google's responsible AI guidelines. The realism for adult figures is also a significant step up.</li>
@@ -384,7 +386,7 @@ export const articles: Article[] = [
             <li><strong>Prompt:</strong> <code>A cutout browser page with paddings on all sides, featuring a search bar displaying 'BagOfWords' and a link at the top reading 'BagOfWords.tech', modern design, clean layout, smooth edges</code></li>
             <li><strong>Result:</strong>
                 <figure class="my-6">
-                    <img src="${getAppwriteImageUrl('Output2.png')}" loading="lazy" alt="Imagen 3 generated image with text 'BagOfWords' and 'BagOfWords.tech'" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI webpage">
+                    <img src="${getOptimizedHtmlImageUrl('Output2.png')}" loading="lazy" alt="Imagen 3 generated image with text 'BagOfWords' and 'BagOfWords.tech'" class="block max-w-xl w-full h-auto mx-auto rounded-md shadow-lg object-contain" data-ai-hint="AI webpage">
                 </figure>
             </li>
             <li><strong>Note:</strong> Notice the clarity and accuracy of the text "BagOfWords" and "BagOfWords.tech". This is a notable improvement, making Imagen 3 useful for creating visuals that require specific text overlays or branding.</li>
