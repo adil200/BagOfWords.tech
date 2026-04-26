@@ -20,7 +20,7 @@ function generateIndex() {
     .map((fileName) => {
       const fullPath = path.join(articlesDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, 'utf8');
-      const { data } = matter(fileContents);
+      const { data, content } = matter(fileContents);
       
       const publishDate = data.publishDate || new Date().toISOString();
       const slug = data.slug || fileName.replace(/\.mdx$/, '');
@@ -45,6 +45,7 @@ function generateIndex() {
         readTime: parseInt(data.readingTime) || 5,
         heroImageUrl: data.heroImageUrl || '',
         excerpt: data.excerpt || '',
+        content: content,
         status: 'published',
         featured: data.featured || false,
         views: data.views || 0,

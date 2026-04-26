@@ -59,20 +59,11 @@ export async function getPublishedArticles(): Promise<any[]> {
   }
 }
 
-/**
- * Get article by slug
- */
 export async function getArticleBySlug(slug: string): Promise<any | null> {
   try {
-    const fullPath = path.join(articlesDirectory, `${slug}.mdx`);
-    
-    if (fs.existsSync(fullPath)) {
-      return getArticleData(`${slug}.mdx`);
-    }
-    
-    if (slug === 'how-gpts-llms-work') {
-      const all = await getPublishedArticles();
-      return all.find(a => a.slug === slug) || null;
+    const article = articlesIndex.find(a => a.slug === slug);
+    if (article) {
+      return article;
     }
     
     return null;
