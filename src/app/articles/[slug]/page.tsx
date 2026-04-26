@@ -1,4 +1,4 @@
-
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getCategoryBySlug, getAuthorById } from '@/lib/data';
@@ -10,6 +10,7 @@ import { CommentSection } from '@/components/comments/CommentSection';
 import Link from 'next/link';
 import { ArticleSummaryGenerator } from '@/components/articles/ArticleSummaryGenerator';
 import { ArticleContent } from '@/components/articles/ArticleContent';
+import { marked } from 'marked';
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -18,6 +19,27 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({
     slug,
   }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await getArticleBySlug(slug);
+
+  if (!article) {
+    return {
+      title: 'Article Not Found',
+    };
+  }
+
+  return {
+    title: `${article.title} | BagOfWords`,
+    description: article.excerpt,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      images: article.heroImageUrl ? [{ url: article.heroImageUrl }] : [],
+    },
+  };
 }
 
 // Internal component for rendering ToC content
@@ -37,7 +59,7 @@ const TocContentDisplay = ({ entries }: { entries: { id: string; text: string; l
 );
 
 
-export default async function ArticlePage({ params }: { params: { slug: string } }) {
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
 
@@ -49,8 +71,12 @@ export default async function ArticlePage({ params }: { params: { slug: string }
   const authorDetails = getAuthorById(article.author.id);
 
   const tocEntries: { id: string; text: string; level: number }[] = [];
-  let processedContent = article.content;
-  if (processedContent) {
+  // Parse the markdown content to HTML
+  let processedContent = '';
+  if (article.content) {
+    processedContent = marked.parse(article.content) as string;
+    
+    // Build ToC from the HTML
     const headingRegex = /<h([2-3])(?:[^>]*)>(.*?)<\/h\1>/gi;
     let match;
     const replacements: { original: string, new: string }[] = [];

@@ -1,0 +1,45 @@
+---
+title: How do Corporate and Personal Firewalls work?
+slug: corporate-and-personal-firewalls
+category: ''
+tags:
+  - Firewall
+  - Network Security
+publishDate: '2025-05-17T00:00:00.000Z'
+readingTime: 4 min read
+heroImageUrl: >-
+  https://cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c2fea70030e134a185/preview?output=webp&quality=80&project=68a9e75000030fe77800
+excerpt: >-
+  Firewalls are essential for securing corporate networks from internet threats
+  by acting as a barrier that monitors and controls incoming and outgoing
+  traffic based on predefined security rules.
+---
+# Securing Corporate Networks with Firewalls
+
+Every computer that is connected to the internet, especially those that are connected to a high-speed cable modem or DSL modem will have potential danger from hackers. Even every corporate network connected to the internet is vulnerable to attack due to the internet’s openness. Hackers can break into corporate networks and can cause many problems like stealing or damaging important data, using corporate resources etc. To avoid this problem we can’t just turn off the internet, hence we can use firewalls to protect the corporate network.
+
+Norton
+
+## What are Firewalls?
+
+Firewalls are a combination of hardware and software components that are built using servers, routers, and a variety of software. Firewalls act as a connection between a corporate network and the internet. Firewalls work by monitoring incoming and outgoing traffic based on a predefined set of security rules. Firewalls protect corporate networks from hackers by restricting unauthorized access to the network while allowing authorized communication to pass. Firewalls are important for securing both corporate and personal networks.
+
+Some of the simplest kind of firewalls uses packet filtering. In packet filtering, there is a screening router that examines the header of every packet of data travelling between the internet and the corporate network. Using this the firewalls can restrict certain packets from being transferred from the internet to the corporate network. For example, we can block any traffic except for mail, and it can restrict traffic to and from suspicious websites or users.
+
+## How do Corporate Firewalls work?
+
+Whenever an employee wants to access the internet on the corporate network inside the firewall, the data must pass through a choke router. This router ensures that all data packets travelling between the corporate network and the internet are authorized. The router examines the packet headers to extract important information, such as the protocol being used, the source and destination addresses, and other identification details.
+
+As discussed, based on the information from the headers of the packets, the screening router allows specific packets to pass. Not only that, the choke router can restrict traffic to and from specific locations. System administrators can set these rules that determine which packets to allow and which to block.
+
+One of the ports from the choke router is connected to a Bastion Host. This host serves as the main point of contact for incoming connections from the internet for services like receiving mail and providing access to the company’s FTP site. The Bastion Host can be replaced with proxy servers, which process requests from the corporate network to the internet, such as browsing and downloading. This Bastion Host is a heavily protected server with many built-in security provisions.
+
+The Bastion Host is placed in a perimeter network, also known as a demilitarized zone (DMZ), within the firewall, rather than on the corporate network itself. This placement is crucial for the safety of the corporate network, as it prevents potential hackers from gaining access to all computers in the network if the Bastion Host is compromised.
+
+The last component is the access router which is positioned between the perimeter network and the internet. This router adds an extra level of security by checking packets based on the same rules as the internal screening system.
+
+## Conclusion
+
+In conclusion, firewalls are important for securing corporate networks from threats and unauthorized access. As they are the barrier between the trusted internal network and the untrusted external network, they help prevent malicious attacks from entering into untrusted external network. The firewalls use techniques like packet filtering and components like choke routers, and perimeter networks to ensure that only authorized traffic is allowed.
+
+Although firewalls are highly effective in safeguarding corporate networks, additional solutions can further enhance network security. Combining firewalls with other measures, such as intrusion detection systems and regular security assessments, provides comprehensive protection. Continuous monitoring is essential, and system administrators should regularly update security rules. Additionally, educating employees about safe internet practices is crucial for maintaining overall security.

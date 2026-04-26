@@ -44,10 +44,10 @@ const getRandomAnonymousUser = (): LocalAuthor => {
     { name: 'Anonymous Reader', icon: '/bot-icon-yellow.svg', color: 'Yellow' },
     { name: 'Anonymous Reader', icon: '/bot-icon-indigo.svg', color: 'Indigo' },
   ];
-  
+
   const randomIndex = Math.floor(Math.random() * botVariants.length);
   const selected = botVariants[randomIndex];
-  
+
   return {
     id: 'anonymous',
     name: selected.name,
@@ -112,24 +112,24 @@ function CommentItem({ comment, onReplyToggle, articleSlug, currentUser, refresh
             </div>
             <p className="text-foreground/90 mt-2 whitespace-pre-wrap break-words">{comment.content}</p>
             <div className="flex items-center space-x-3 text-sm text-muted-foreground mt-3">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleVote(comment.id, 'up')} 
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleVote(comment.id, 'up')}
                 disabled={!!isVoting}
                 className="flex items-center gap-1 px-2"
               >
-                {isVoting === 'up' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />} 
+                {isVoting === 'up' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
                 {comment.upvotes}
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleVote(comment.id, 'down')} 
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleVote(comment.id, 'down')}
                 disabled={!!isVoting}
                 className="flex items-center gap-1 px-2"
               >
-                {isVoting === 'down' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsDown className="h-4 w-4" />} 
+                {isVoting === 'down' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsDown className="h-4 w-4" />}
                 {comment.downvotes}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => onReplyToggle(comment.id)} className="flex items-center gap-1 px-2" disabled={!!isVoting}>
@@ -146,7 +146,7 @@ function CommentItem({ comment, onReplyToggle, articleSlug, currentUser, refresh
               currentUser={currentUser}
               onCommentAdded={() => {
                 refreshComments();
-                onReplyToggle(comment.id); 
+                onReplyToggle(comment.id);
               }}
             />
           </div>
@@ -154,10 +154,10 @@ function CommentItem({ comment, onReplyToggle, articleSlug, currentUser, refresh
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-3">
             {comment.replies.map(reply => (
-              <CommentItem 
-                key={reply.id} 
-                comment={reply} 
-                onReplyToggle={onReplyToggle} 
+              <CommentItem
+                key={reply.id}
+                comment={reply}
+                onReplyToggle={onReplyToggle}
                 articleSlug={articleSlug}
                 currentUser={currentUser}
                 refreshComments={refreshComments}
@@ -190,7 +190,7 @@ function CommentForm({ articleSlug, parentId, currentUser, onCommentAdded }: Com
       return;
     }
     setIsSubmitting(true);
-    
+
     const result = await addCommentToAppwrite(
       articleSlug,
       content,
@@ -296,7 +296,7 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
         setShowPasswordDialog(false);
         setPassword('');
         setIsVerifying(false);
-        
+
         // Update user state and show toast
         setCurrentUser(getAuthorProfile());
         sessionStorage.setItem('isAuthor', 'true');
@@ -335,7 +335,7 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
   const handleReplyToggle = (commentId: string) => {
     setOpenReplyFormId(prevId => (prevId === commentId ? null : commentId));
   };
-  
+
   const isReplyFormOpen = (commentId: string): boolean => {
     return openReplyFormId === commentId;
   };
@@ -356,10 +356,10 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
       <h2 id="comments-heading" className="text-2xl font-semibold mb-6">
         Comments ({isLoading ? '...' : totalCommentsCount})
       </h2>
-      
-      <CommentForm 
-        articleSlug={articleSlug} 
-        currentUser={currentUser} 
+
+      <CommentForm
+        articleSlug={articleSlug}
+        currentUser={currentUser}
         onCommentAdded={fetchComments}
       />
 
@@ -425,9 +425,9 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
       ) : comments.length > 0 ? (
         <div className="space-y-6">
           {comments.map((comment) => (
-            <CommentItem 
-              key={comment.id} 
-              comment={comment} 
+            <CommentItem
+              key={comment.id}
+              comment={comment}
               onReplyToggle={handleReplyToggle}
               articleSlug={articleSlug}
               currentUser={currentUser}
