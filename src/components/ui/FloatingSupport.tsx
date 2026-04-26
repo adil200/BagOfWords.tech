@@ -15,7 +15,7 @@ declare global {
 
 export function FloatingSupport() {
   const [isOpen, setIsOpen] = useState(false);
-  const [amount, setAmount] = useState('5');
+  const [amount, setAmount] = useState('100');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -166,7 +166,7 @@ export function FloatingSupport() {
 
               {/* Amount Presets */}
               <div className="flex gap-2 w-full pt-2">
-                {['3', '5', '10'].map((preset) => (
+                {['100', '250', '400'].map((preset) => (
                   <Button
                     key={preset}
                     variant={amount === preset ? 'default' : 'outline'}
