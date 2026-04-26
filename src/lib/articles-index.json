@@ -1,0 +1,176 @@
+[
+  {
+    "$id": "how-gpts-llms-work",
+    "$createdAt": "2025-11-08T00:00:00.000Z",
+    "publishedAt": "2025-11-08T00:00:00.000Z",
+    "slug": "how-gpts-llms-work",
+    "title": "How GPTs/LLMs work? From prompt to output",
+    "category": "ai-fundamentals",
+    "tags": [
+      "LLMs",
+      "GPT",
+      "Transformers",
+      "NLP"
+    ],
+    "author": {
+      "id": "1",
+      "name": "Adil Naib",
+      "avatarUrl": "https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin",
+      "bio": "AI & ML enthusiast"
+    },
+    "publishDate": "2025-11-08T00:00:00.000Z",
+    "createdAt": "2025-11-08T00:00:00.000Z",
+    "readingTime": "15 min read",
+    "readTime": 15,
+    "heroImageUrl": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop",
+    "excerpt": "An interactive, animated exploration of how Large Language Models generate human-like text by processing enormous amounts of data.",
+    "status": "published",
+    "featured": true,
+    "views": 0
+  },
+  {
+    "$id": "gemini-diffusion-review",
+    "$createdAt": "2025-06-02T00:00:00.000Z",
+    "publishedAt": "2025-06-02T00:00:00.000Z",
+    "slug": "gemini-diffusion-review",
+    "title": "Gemini Diffusion Review",
+    "category": "ai-tools-review",
+    "tags": [
+      "Gemini Diffusion",
+      "AI Coding Assistant",
+      "Code Generation",
+      "AI Development",
+      "Productivity",
+      "Gemini"
+    ],
+    "author": {
+      "id": "1",
+      "name": "Adil Naib",
+      "avatarUrl": "https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin",
+      "bio": "AI & ML enthusiast"
+    },
+    "publishDate": "2025-06-02T00:00:00.000Z",
+    "createdAt": "2025-06-02T00:00:00.000Z",
+    "readingTime": "7 min read",
+    "readTime": 7,
+    "heroImageUrl": "https://cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c2dc1200280aa03179/preview?output=webp&quality=80&project=68a9e75000030fe77800",
+    "excerpt": "A sneak peek at Gemini Diffusion, an AI coding assistant claiming performance like a future Gemini 2.0 Flash-Lite model but 5x faster, generating hundreds of lines of code in seconds.",
+    "status": "published",
+    "featured": false,
+    "views": 0
+  },
+  {
+    "$id": "google-imagen-3-002",
+    "$createdAt": "2025-05-19T00:00:00.000Z",
+    "publishedAt": "2025-05-19T00:00:00.000Z",
+    "slug": "google-imagen-3-002",
+    "title": "Google's Imagen 3.0-002 Can Now Create Realistic People and Accurate In-Image Text",
+    "category": "ai-tools-review",
+    "tags": [
+      "Google AI",
+      "Text-to-Image",
+      "Generative AI",
+      "AI Art",
+      "imagen-3.0-generate-002",
+      "Realistic People AI",
+      "Text in Image AI"
+    ],
+    "author": {
+      "id": "1",
+      "name": "Adil Naib",
+      "avatarUrl": "https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin",
+      "bio": "AI & ML enthusiast"
+    },
+    "publishDate": "2025-05-19T00:00:00.000Z",
+    "createdAt": "2025-05-19T00:00:00.000Z",
+    "readingTime": "6 min read",
+    "readTime": 6,
+    "heroImageUrl": "https://cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c2dc5e000db6d430c6/preview?output=webp&quality=80&project=68a9e75000030fe77800",
+    "excerpt": "Google's latest AI model, Imagen 3 (imagen-3.0-generate-002), now generates strikingly realistic humans and renders accurate text directly within images. Discover its capabilities, how to access it, and potential uses.",
+    "status": "published",
+    "featured": false,
+    "views": 0
+  },
+  {
+    "$id": "corporate-and-personal-firewalls",
+    "$createdAt": "2025-05-17T00:00:00.000Z",
+    "publishedAt": "2025-05-17T00:00:00.000Z",
+    "slug": "corporate-and-personal-firewalls",
+    "title": "How do Corporate and Personal Firewalls work?",
+    "category": "Uncategorized",
+    "tags": [
+      "Firewall",
+      "Network Security"
+    ],
+    "author": {
+      "id": "1",
+      "name": "Adil Naib",
+      "avatarUrl": "https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin",
+      "bio": "AI & ML enthusiast"
+    },
+    "publishDate": "2025-05-17T00:00:00.000Z",
+    "createdAt": "2025-05-17T00:00:00.000Z",
+    "readingTime": "4 min read",
+    "readTime": 4,
+    "heroImageUrl": "https://cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c2fea70030e134a185/preview?output=webp&quality=80&project=68a9e75000030fe77800",
+    "excerpt": "Firewalls are essential for securing corporate networks from internet threats by acting as a barrier that monitors and controls incoming and outgoing traffic based on predefined security rules.",
+    "status": "published",
+    "featured": false,
+    "views": 0
+  },
+  {
+    "$id": "password-manager-PasswordCrypto",
+    "$createdAt": "2025-05-17T00:00:00.000Z",
+    "publishedAt": "2025-05-17T00:00:00.000Z",
+    "slug": "password-manager-PasswordCrypto",
+    "title": "Implement a Password Manager with the PasswordCrypto Python Library",
+    "category": "ai-fundamentals",
+    "tags": [
+      "Python",
+      "Password Management",
+      "Python Libraries"
+    ],
+    "author": {
+      "id": "1",
+      "name": "Adil Naib",
+      "avatarUrl": "https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin",
+      "bio": "AI & ML enthusiast"
+    },
+    "publishDate": "2025-05-17T00:00:00.000Z",
+    "createdAt": "2025-05-17T00:00:00.000Z",
+    "readingTime": "6 min read",
+    "readTime": 6,
+    "heroImageUrl": "https://cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c2fe59000cdd1ca26d/preview?output=webp&quality=80&project=68a9e75000030fe77800",
+    "excerpt": "PasswordCrypto is a Python library that simplifies secure password management by encrypting and storing sensitive login information.",
+    "status": "published",
+    "featured": false,
+    "views": 0
+  },
+  {
+    "$id": "PyRegExp",
+    "$createdAt": "2025-05-17T00:00:00.000Z",
+    "publishedAt": "2025-05-17T00:00:00.000Z",
+    "slug": "PyRegExp",
+    "title": "PyRegExp: A Comprehensive Guide to Python Regular Expressions",
+    "category": "nlp",
+    "tags": [
+      "Python",
+      "Regular Expressions"
+    ],
+    "author": {
+      "id": "1",
+      "name": "Adil Naib",
+      "avatarUrl": "https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin",
+      "bio": "AI & ML enthusiast"
+    },
+    "publishDate": "2025-05-17T00:00:00.000Z",
+    "createdAt": "2025-05-17T00:00:00.000Z",
+    "readingTime": "7 min read",
+    "readTime": 7,
+    "heroImageUrl": "https://cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c2dbeb001aac51a773/preview?output=webp&quality=80&project=68a9e75000030fe77800",
+    "excerpt": "PyRegExp is a Python library designed to simplify regular expression usage, enabling users to efficiently identify and extract specific string patterns crucial for data analysis.",
+    "status": "published",
+    "featured": false,
+    "views": 0
+  }
+]

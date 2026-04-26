@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import type { Article } from '@/types';
+import articlesIndex from './articles-index.json';
 
 const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
 
@@ -51,50 +52,9 @@ function getArticleData(fileName: string): any {
  */
 export async function getPublishedArticles(): Promise<any[]> {
   try {
-    if (!fs.existsSync(articlesDirectory)) return [];
-    
-    const fileNames = fs.readdirSync(articlesDirectory);
-    const articles = fileNames
-      .filter((fileName) => fileName.endsWith('.mdx'))
-      .map((fileName) => getArticleData(fileName));
-
-    // Inject the hardcoded interactive article
-    articles.push({
-      $id: 'how-gpts-llms-work',
-      $createdAt: '2025-11-08T00:00:00.000Z',
-      publishedAt: '2025-11-08T00:00:00.000Z',
-      slug: 'how-gpts-llms-work',
-      title: 'How GPTs/LLMs work? From prompt to output',
-      category: 'ai-fundamentals',
-      tags: ['LLMs', 'GPT', 'Transformers', 'NLP'],
-      author: {
-        id: '1',
-        name: 'Adil Naib',
-        avatarUrl: 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin',
-        bio: 'AI & ML enthusiast',
-      },
-      publishDate: new Date('2025-11-08T00:00:00.000Z'),
-      createdAt: '2025-11-08T00:00:00.000Z',
-      readingTime: '10 min read',
-      readTime: 10,
-      heroImageUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000&auto=format&fit=crop',
-      excerpt: 'An interactive, animated exploration of how Large Language Models generate human-like text by processing enormous amounts of data.',
-      content: '', // Custom rendering via page.tsx
-      status: 'published',
-      featured: true,
-      views: 0,
-    });
-
-    // Sort articles by date descending
-    return articles.sort((a, b) => {
-      if (a.publishDate < b.publishDate) {
-        return 1;
-      } else {
-        return -1;
-      }
-    });
+    return articlesIndex;
   } catch (error) {
-    console.error('Failed to get articles from local MDX:', error);
+    console.error('Failed to get articles from index:', error);
     return [];
   }
 }
@@ -135,12 +95,7 @@ export async function getArticlesByCategory(category: string): Promise<Article[]
  */
 export async function getAllArticleSlugs(): Promise<string[]> {
   try {
-    if (!fs.existsSync(articlesDirectory)) return [];
-    
-    const fileNames = fs.readdirSync(articlesDirectory);
-    return fileNames
-      .filter(fileName => fileName.endsWith('.mdx'))
-      .map(fileName => fileName.replace(/\.mdx$/, ''));
+    return articlesIndex.map(article => article.slug);
   } catch (error) {
     console.error('Failed to get article slugs:', error);
     return [];
