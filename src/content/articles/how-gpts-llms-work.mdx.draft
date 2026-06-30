@@ -1,0 +1,90 @@
+---
+title: "How GPTs/LLMs work? From prompt to output"
+slug: how-gpts-llms-work
+category: ai-fundamentals
+publishDate: '2025-11-08T00:00:00.000Z'
+readingTime: 15 min read
+excerpt: An interactive, animated exploration of how Large Language Models generate human-like text by processing enormous amounts of data.
+---
+
+## What are LLMs?
+
+**Large Language Models (LLMs)** are deep learning algorithms that can recognize, summarize, translate, predict and generate text and other forms of content based on knowledge gained from massive datasets.
+
+They generate human-like text by processing enormous amounts of information, learning statistical patterns, grammar, reasoning abilities, and even some facts about the world.
+
+**Generative Pre-trained Transformers (GPTs)** are a specific, wildly successful family of LLMs based entirely on the *Transformer architecture*.
+
+## What was there before LLMs?
+
+Before Transformers revolutionized text generation, sequence prediction and classification tasks relied on older neural network architectures, each with distinct limitations.
+
+### RNN (Recurrent Neural Network)
+
+RNNs were the gold standard for sequential and time-series data. They processed words one by one, keeping a "memory" of previous words. However, they suffered from the *vanishing gradient problem*, meaning they would "forget" words from the beginning of a long sentence by the time they reached the end.
+
+- **Example Use Case:** Stock Price Prediction
+- **Data Type:** Sequential, Time-Series
+
+### CNN (Convolutional Neural Network)
+
+CNNs are incredibly powerful, but they are built for spatial data, primarily images and video, where local proximity of pixels matters more than temporal sequences.
+
+- **Example Use Case:** Object tracking, Predicting speed limits from street signs
+- **Data Type:** Spatial Data
+
+## Traditional NLP
+
+Natural Language Processing (NLP) is not a specific framework like RNNs or CNNs; it is an entire discipline of Artificial Intelligence focused purely on making computers understand human text.
+
+Historically, NLP did not rely on massive generative models. It relied on specific, rules-based or statistical libraries designed to break down language mechanically: spaCy (Industrial-strength NLP in Python), NLTK (The Natural Language Toolkit), and SparkNLP (State-of-the-art NLP for enterprise).
+
+Instead of generating entire essays, traditional NLP focused on highly specific micro-tasks: Sentiment Analysis (Is this review positive or negative?), NER — Named Entity Recognition (Finding "Apple" the company vs "apple" the fruit), and POS Tagging (Labeling nouns, verbs, and adjectives).
+
+## The Turning Point: 2017
+
+Everything changed in 2017. A team of Google researchers led by Ashish Vaswani published what would become one of the most cited papers in computer science history: **"Attention Is All You Need"**.
+
+This paper introduced the **Transformer Architecture**. It completely discarded the slow, sequential nature of RNNs. Instead, it allowed neural networks to process entire sentences *simultaneously*, drastically reducing training times and allowing models to "attend" to relationships between words regardless of how far apart they were.
+
+## Step 1: Tokenization & Embedding
+
+So, what happens when you type a prompt like *"What is Mainframe Modernization?"* into an LLM?
+
+**1. Tokenization:** The AI doesn't read words. It chops your prompt into chunks called **Tokens**. Sometimes a token is a whole word, sometimes it's just a syllable. For example: ['What', ' is', ' Main', 'frame', ' Modern', 'ization', '?']
+
+**2. Embedding:** Next, it converts those tokens into numbers. Specifically, high-dimensional vectors. Words with similar meanings (like "dog" and "puppy") are placed close together in this mathematical space.
+
+**3. Positional Encoding:** Because Transformers process everything simultaneously, they have no concept of word order. Positional encoding adds tiny mathematical adjustments to the vectors so the model knows that "dog bites man" is different from "man bites dog".
+
+## Step 2: The Attention Mechanism
+
+Once the words are converted into numbers, they enter the core of the Transformer.
+
+The magic happens in **Self-Attention**. This allows the model to look at a word and weigh its relevance against every other word in the sentence. It does this using three matrices borrowed from database terminology:
+
+- **Query (Q):** What am I looking for?
+- **Key (K):** What do I have?
+- **Value (V):** What is my actual content?
+
+By multiplying these matrices together (scaled dot-product attention), the model figures out that in the sentence "The bank of the river", the word "bank" relates to "river", not "money".
+
+## Step 3: Decoding & Softmax
+
+After passing through multiple layers of Encoders and Decoders, the model reaches the final step: Output.
+
+The LLM's only job is to **predict the very next token**.
+
+The final layer transforms the dense vectors into a massive array of probabilities—one for every single word in its vocabulary. This is done using a mathematical function called **Softmax**.
+
+The Softmax function ensures all the probabilities add up to 100%. The model might predict: Mainframe → 85%, Cloud → 10%, Computer → 5%. It selects "Mainframe", appends it to your prompt, and starts the entire massive process over again for the next word.
+
+## Under the Hood: The Code
+
+At the absolute lowest code level, the enormous "magic" of an LLM boils down to simple linear algebra.
+
+A simple **Linear Layer** (the fundamental building block of these networks) just multiplies an input matrix by a weight matrix and adds a bias vector.
+
+When you hear that a model like GPT-4 has "a trillion parameters", those parameters are exactly these weights and biases. The formula for the parameters in a single basic layer is simply `(input_size × output_size) + output_size`.
+
+The breathtaking capabilities of LLMs arise not from complex logic rules, but simply from stacking billions of these basic mathematical parameters together and training them on the entirety of human knowledge.

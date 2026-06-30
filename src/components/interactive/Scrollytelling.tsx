@@ -41,11 +41,12 @@ export function Step({ children, stepIndex }: { children: React.ReactNode, stepI
   });
 
   const isActive = currentStep === stepIndex;
+  const opacityClass = isActive ? 'opacity-100' : 'opacity-100 lg:opacity-40';
 
   return (
     <div 
       ref={ref} 
-      className={`min-h-[60vh] flex flex-col justify-center transition-opacity duration-500 py-10 ${isActive ? 'opacity-100' : 'opacity-40'}`}
+      className={`min-h-[60vh] flex flex-col justify-center transition-opacity duration-500 py-10 ${opacityClass}`}
     >
       {children}
     </div>
@@ -54,8 +55,10 @@ export function Step({ children, stepIndex }: { children: React.ReactNode, stepI
 
 export function ScrollyVisualizer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="hidden lg:flex w-1/2 sticky top-24 h-[calc(100vh-8rem)] items-center justify-center">
-      {children}
+    <div className="hidden lg:flex w-1/2 sticky top-24 h-[calc(100vh-6rem)] max-h-[800px] items-center justify-center">
+      <div className="w-full max-h-full overflow-y-auto overflow-x-hidden">
+        {children}
+      </div>
     </div>
   );
 }

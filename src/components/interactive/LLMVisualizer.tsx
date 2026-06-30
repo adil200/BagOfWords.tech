@@ -4,8 +4,9 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrolly } from './Scrollytelling';
 
-export function LLMVisualizer() {
-  const { currentStep } = useScrolly();
+export function LLMVisualizer({ stepOverride }: { stepOverride?: number }) {
+  const scrolly = useScrolly();
+  const currentStep = stepOverride !== undefined ? stepOverride : scrolly.currentStep;
 
   const getDiagram = () => {
     switch (currentStep) {

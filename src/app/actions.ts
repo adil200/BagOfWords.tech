@@ -338,37 +338,47 @@ export async function generateArticleSummaryAction(articleContent: string): Prom
         return { error: "Article content cannot be empty." };
     }
 
-    try {
-        console.log('[generateArticleSummaryAction] Starting summary generation...');
+    const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
 
-        const { GoogleGenerativeAI } = await import('@google/generative-ai');
-        const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-
-        const prompt = `Please provide a concise summary of the following article content. Focus on the main points and key information:
+    const prompt = `Please provide a concise summary of the following article content. Focus on the main points and key information:
 
 ${articleContent}
 
 Summary:`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const summary = response.text();
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
-        if (summary && summary.trim()) {
-            console.log('[generateArticleSummaryAction] Summary generated successfully, length:', summary.length);
-            return { summary: summary.trim() };
-        } else {
-            console.error('[generateArticleSummaryAction] Empty summary returned');
-            return { error: "Failed to generate summary. Empty response." };
+    let lastError: any = null;
+
+    for (const modelName of MODELS) {
+        try {
+            console.log(`[generateArticleSummaryAction] Trying model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const summary = response.text();
+
+            if (summary && summary.trim()) {
+                console.log(`[generateArticleSummaryAction] Summary generated with ${modelName}, length:`, summary.length);
+                return { summary: summary.trim() };
+            } else {
+                console.error(`[generateArticleSummaryAction] Empty summary from ${modelName}`);
+                lastError = new Error('Empty response from model.');
+            }
+        } catch (err: any) {
+            lastError = err;
+            const is503 = err.message?.includes('503') || err.message?.includes('Service Unavailable') || err.message?.includes('high demand');
+            console.warn(`[generateArticleSummaryAction] Model ${modelName} failed${is503 ? ' (503 – retrying with fallback)' : ''}:`, err.message);
+            // Only continue to fallback for transient availability errors
+            if (!is503) break;
         }
-    } catch (err: any) {
-        console.error('[generateArticleSummaryAction] Error:', err);
-        let errorMessage = 'An error occurred while generating the summary.';
-        if (err.message) {
-            errorMessage += ` Details: ${err.message}`;
-        }
-        return { error: errorMessage };
     }
+
+    console.error('[generateArticleSummaryAction] All models failed:', lastError);
+    let errorMessage = 'An error occurred while generating the summary.';
+    if (lastError?.message) {
+        errorMessage += ` Details: ${lastError.message}`;
+    }
+    return { error: errorMessage };
 }

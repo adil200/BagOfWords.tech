@@ -155,11 +155,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               <h3 className="text-md font-semibold mb-3 text-muted-foreground flex items-center"><TagIcon className="h-5 w-5 mr-2" />Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {article.tags.map((tag: string) => (
-                  <Link key={tag} href={`/articles?query=${encodeURIComponent(tag)}`}>
-                    <Badge variant="outline" className="px-3 py-1 text-sm hover:bg-accent/10 hover:border-accent cursor-pointer transition-colors">
-                      {tag}
-                    </Badge>
-                  </Link>
+                  <Badge key={tag} variant="outline" className="px-3 py-1 text-sm">
+                    {tag}
+                  </Badge>
                 ))}
               </div>
             </div>

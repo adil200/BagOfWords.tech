@@ -1,13 +1,12 @@
 /**
  * Article Service Layer
- * Handles fetching articles from local MDX files
+ * Handles fetching articles dynamically from local MDX files
  */
 
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import type { Article } from '@/types';
-import articlesIndex from './articles-index.json';
 
 const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
 
@@ -34,7 +33,7 @@ function getArticleData(fileName: string): any {
       avatarUrl: 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin',
       bio: 'AI & ML enthusiast',
     },
-    publishDate: new Date(publishDate),
+    publishDate: publishDate,
     createdAt: publishDate,
     readingTime: data.readingTime || '5 min read',
     readTime: parseInt(data.readingTime) || 5,
@@ -52,21 +51,22 @@ function getArticleData(fileName: string): any {
  */
 export async function getPublishedArticles(): Promise<any[]> {
   try {
-    return articlesIndex;
+    const fileNames = fs.readdirSync(articlesDirectory);
+    const articles = fileNames
+      .filter((fileName) => fileName.endsWith('.mdx'))
+      .map((fileName) => getArticleData(fileName));
+      
+    // Sort by publishDate descending (newest first)
+    return articles.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
   } catch (error) {
-    console.error('Failed to get articles from index:', error);
+    console.error('Failed to get articles from directory:', error);
     return [];
   }
 }
 
 export async function getArticleBySlug(slug: string): Promise<any | null> {
   try {
-    const article = articlesIndex.find(a => a.slug === slug);
-    if (article) {
-      return article;
-    }
-    
-    return null;
+    return getArticleData(`${slug}.mdx`);
   } catch (error) {
     console.error(`Failed to get article by slug ${slug}:`, error);
     return null;
@@ -86,7 +86,10 @@ export async function getArticlesByCategory(category: string): Promise<Article[]
  */
 export async function getAllArticleSlugs(): Promise<string[]> {
   try {
-    return articlesIndex.map(article => article.slug);
+    const fileNames = fs.readdirSync(articlesDirectory);
+    return fileNames
+      .filter((fileName) => fileName.endsWith('.mdx'))
+      .map((fileName) => fileName.replace(/\.mdx$/, ''));
   } catch (error) {
     console.error('Failed to get article slugs:', error);
     return [];
