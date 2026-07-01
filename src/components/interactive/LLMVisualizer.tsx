@@ -55,10 +55,10 @@ export function LLMVisualizer({ stepOverride }: { stepOverride?: number }) {
         return (
           <motion.div
             key="step1"
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl"
+            exit={{ opacity: 0, x: -20 }}
+            className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl overflow-hidden"
           >
              <h3 className="text-3xl font-extrabold mb-10 tracking-tight">The Pre-LLM Era</h3>
              <div className="grid grid-cols-2 gap-8 w-full max-w-2xl">
@@ -102,10 +102,10 @@ export function LLMVisualizer({ stepOverride }: { stepOverride?: number }) {
         return (
           <motion.div
             key="step2"
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl"
+            exit={{ opacity: 0, y: -20 }}
+            className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl overflow-hidden"
           >
              <h3 className="text-3xl font-extrabold mb-6 tracking-tight">Traditional NLP</h3>
              <p className="text-center text-muted-foreground mb-8 max-w-sm text-lg">Task-specific models, rather than generative intelligence.</p>
@@ -384,7 +384,7 @@ export function LLMVisualizer({ stepOverride }: { stepOverride?: number }) {
                 The Code Level
              </h3>
              <motion.div 
-               initial={{ y: 50, opacity: 0 }}
+               initial={{ y: 20, opacity: 0 }}
                animate={{ y: 0, opacity: 1 }}
                transition={{ type: "spring" }}
                className="w-full bg-[#1e1e1e] rounded-2xl p-8 font-mono text-base text-green-400 text-left overflow-hidden shadow-2xl border border-gray-800 relative group"

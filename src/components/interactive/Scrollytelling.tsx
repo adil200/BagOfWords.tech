@@ -31,8 +31,7 @@ export function ScrollyProvider({ children }: { children: React.ReactNode }) {
 export function Step({ children, stepIndex }: { children: React.ReactNode, stepIndex: number }) {
   const { currentStep, setCurrentStep } = useScrolly();
   const { ref } = useInView({
-    threshold: 0.5,
-    rootMargin: "-30% 0px -30% 0px", // Trigger when fairly central
+    rootMargin: "-45% 0px -45% 0px", // Trigger when fairly central
     onChange: (inView) => {
       if (inView) {
         setCurrentStep(stepIndex);
@@ -56,7 +55,7 @@ export function Step({ children, stepIndex }: { children: React.ReactNode, stepI
 export function ScrollyVisualizer({ children }: { children: React.ReactNode }) {
   return (
     <div className="hidden lg:flex w-1/2 sticky top-24 h-[calc(100vh-6rem)] max-h-[800px] items-center justify-center">
-      <div className="w-full max-h-full overflow-y-auto overflow-x-hidden">
+      <div className="w-full max-h-full overflow-hidden">
         {children}
       </div>
     </div>

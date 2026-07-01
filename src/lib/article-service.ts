@@ -8,11 +8,10 @@ import path from 'path';
 import matter from 'gray-matter';
 import type { Article } from '@/types';
 
-const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
 
 // Helper to read and parse an MDX file
 function getArticleData(fileName: string): any {
-  const fullPath = path.join(articlesDirectory, fileName);
+  const fullPath = path.join(process.cwd(), 'src/content/articles', fileName);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
   
@@ -51,6 +50,7 @@ function getArticleData(fileName: string): any {
  */
 export async function getPublishedArticles(): Promise<any[]> {
   try {
+    const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
     const fileNames = fs.readdirSync(articlesDirectory);
     const articles = fileNames
       .filter((fileName) => fileName.endsWith('.mdx'))
@@ -60,7 +60,8 @@ export async function getPublishedArticles(): Promise<any[]> {
     return articles.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
   } catch (error) {
     console.error('Failed to get articles from directory:', error);
-    return [];
+    const { articles: fallbackArticles } = await import('./data');
+    return fallbackArticles;
   }
 }
 
@@ -69,7 +70,8 @@ export async function getArticleBySlug(slug: string): Promise<any | null> {
     return getArticleData(`${slug}.mdx`);
   } catch (error) {
     console.error(`Failed to get article by slug ${slug}:`, error);
-    return null;
+    const { articles: fallbackArticles } = await import('./data');
+    return fallbackArticles.find((a: Article) => a.slug === slug) || null;
   }
 }
 
@@ -86,13 +88,15 @@ export async function getArticlesByCategory(category: string): Promise<Article[]
  */
 export async function getAllArticleSlugs(): Promise<string[]> {
   try {
+    const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
     const fileNames = fs.readdirSync(articlesDirectory);
     return fileNames
       .filter((fileName) => fileName.endsWith('.mdx'))
       .map((fileName) => fileName.replace(/\.mdx$/, ''));
   } catch (error) {
     console.error('Failed to get article slugs:', error);
-    return [];
+    const { articles: fallbackArticles } = await import('./data');
+    return fallbackArticles.map((a: Article) => a.slug);
   }
 }
 

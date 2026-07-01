@@ -12,7 +12,7 @@ export function NLPVisualizer({ stepOverride }: { stepOverride?: number }) {
     switch (currentStep) {
       case 0: // Bag of Words (BoW)
         return (
-          <motion.div key="step0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl">
+          <motion.div key="step0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl overflow-hidden">
             <h3 className="text-3xl font-bold mb-8">Bag of Words</h3>
             <div className="flex gap-4 mb-2 font-mono text-xl">
               {["The", "dog", "chased", "the", "cat"].map((w, i) => (
@@ -44,7 +44,7 @@ export function NLPVisualizer({ stepOverride }: { stepOverride?: number }) {
 
       case 1: // The Problem (Giant Bars)
         return (
-          <motion.div key="step1" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl">
+          <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl overflow-hidden">
              <h3 className="text-2xl font-bold mb-8">The Problem with Common Words</h3>
              <div className="flex items-end gap-4 h-64 w-full max-w-md justify-center border-b-2 border-border pb-2">
                 <div className="flex flex-col items-center gap-2">
@@ -68,7 +68,7 @@ export function NLPVisualizer({ stepOverride }: { stepOverride?: number }) {
 
       case 2: // Log Squashing
         return (
-          <motion.div key="step2" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl">
+          <motion.div key="step2" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl overflow-hidden">
              <h3 className="text-2xl font-bold mb-4 text-accent">Logarithmic Squashing (TF)</h3>
              <p className="font-mono bg-background p-2 rounded border mb-12">log₁₀(count + 1)</p>
              
@@ -100,7 +100,7 @@ export function NLPVisualizer({ stepOverride }: { stepOverride?: number }) {
 
       case 3: // IDF
         return (
-          <motion.div key="step3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl">
+          <motion.div key="step3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl overflow-hidden">
              <h3 className="text-2xl font-bold mb-8 text-primary">Inverse Document Frequency (IDF)</h3>
              <div className="grid grid-cols-4 gap-4 w-full max-w-md">
                 {[...Array(8)].map((_, i) => (
@@ -116,7 +116,7 @@ export function NLPVisualizer({ stepOverride }: { stepOverride?: number }) {
 
       case 4: // Semantic Gap
         return (
-          <motion.div key="step4" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl">
+          <motion.div key="step4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full h-full flex flex-col items-center justify-center p-8 bg-card rounded-xl border shadow-xl overflow-hidden">
              <h3 className="text-2xl font-bold mb-8">The Semantic Gap</h3>
              <div className="flex flex-col gap-6 w-full max-w-md">
                <div className="p-4 bg-background border rounded-lg shadow-sm text-center">
