@@ -13,8 +13,8 @@ export default async function BlogPost() {
   const article = await getArticleBySlug('from-bow-to-word2vec');
   return (
     <InteractiveArticleLayout
-      title="From Bag of Words to Context:"
-      subtitle="Why Counting Fails"
+      title="From Bag of Words to Word2Vec:"
+      subtitle="Fixing the Semantic Gap"
       date="June 29, 2026"
       readingTime="7 min read"
       tags={[
