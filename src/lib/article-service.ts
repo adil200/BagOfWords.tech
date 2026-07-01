@@ -50,8 +50,7 @@ function getArticleData(fileName: string): any {
  */
 export async function getPublishedArticles(): Promise<any[]> {
   try {
-    const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
-    const fileNames = fs.readdirSync(articlesDirectory);
+    const fileNames = fs.readdirSync(path.join(process.cwd(), 'src/content/articles'));
     const articles = fileNames
       .filter((fileName) => fileName.endsWith('.mdx'))
       .map((fileName) => getArticleData(fileName));
@@ -60,8 +59,13 @@ export async function getPublishedArticles(): Promise<any[]> {
     return articles.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
   } catch (error) {
     console.error('Failed to get articles from directory:', error);
-    const { articles: fallbackArticles } = await import('./data');
-    return fallbackArticles;
+    try {
+      const fallbackModule = await import('./articles-index.json');
+      return fallbackModule.default || fallbackModule;
+    } catch (e) {
+      const { articles: staticArticles } = await import('./data');
+      return staticArticles;
+    }
   }
 }
 
@@ -70,8 +74,14 @@ export async function getArticleBySlug(slug: string): Promise<any | null> {
     return getArticleData(`${slug}.mdx`);
   } catch (error) {
     console.error(`Failed to get article by slug ${slug}:`, error);
-    const { articles: fallbackArticles } = await import('./data');
-    return fallbackArticles.find((a: Article) => a.slug === slug) || null;
+    try {
+      const fallbackModule = await import('./articles-index.json');
+      const fallbackArticles = fallbackModule.default || fallbackModule;
+      return fallbackArticles.find((a: Article) => a.slug === slug) || null;
+    } catch (e) {
+      const { articles: staticArticles } = await import('./data');
+      return staticArticles.find((a: Article) => a.slug === slug) || null;
+    }
   }
 }
 
@@ -88,15 +98,20 @@ export async function getArticlesByCategory(category: string): Promise<Article[]
  */
 export async function getAllArticleSlugs(): Promise<string[]> {
   try {
-    const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
-    const fileNames = fs.readdirSync(articlesDirectory);
+    const fileNames = fs.readdirSync(path.join(process.cwd(), 'src/content/articles'));
     return fileNames
       .filter((fileName) => fileName.endsWith('.mdx'))
       .map((fileName) => fileName.replace(/\.mdx$/, ''));
   } catch (error) {
     console.error('Failed to get article slugs:', error);
-    const { articles: fallbackArticles } = await import('./data');
-    return fallbackArticles.map((a: Article) => a.slug);
+    try {
+      const fallbackModule = await import('./articles-index.json');
+      const fallbackArticles = fallbackModule.default || fallbackModule;
+      return fallbackArticles.map((a: Article) => a.slug);
+    } catch (e) {
+      const { articles: staticArticles } = await import('./data');
+      return staticArticles.map((a: Article) => a.slug);
+    }
   }
 }
 
