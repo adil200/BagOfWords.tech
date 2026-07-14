@@ -132,12 +132,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 className="object-cover"
                 priority
                 data-ai-hint="technology blog post"
+                unoptimized={true}
               />
             </div>
           )}
 
-          {/* Article Summary for ALL Screens */}
-          <ArticleSummaryGenerator articleContent={processedContent} articleTitle={article.title} />
+          {/* Mobile Article Summary: Rendered here in the flow, hidden on desktop */}
+          <div className="lg:hidden mb-8">
+            <ArticleSummaryGenerator articleContent={processedContent} articleTitle={article.title} />
+          </div>
 
 
           {/* Mobile Table of Contents: Rendered here in the flow, hidden on desktop */}
@@ -188,6 +191,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Right Column: Container for Table of Contents (Desktop only, sticky) */}
         <aside className="hidden lg:block lg:w-1/3 lg:sticky lg:top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto space-y-6">
+          <ArticleSummaryGenerator articleContent={processedContent} articleTitle={article.title} />
           {/* Box 1: Table of Contents */}
           {tocEntries.length > 0 && (
             <div className="p-4 bg-card rounded-lg shadow-sm border">

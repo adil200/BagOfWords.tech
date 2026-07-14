@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollyProvider, ScrollyVisualizer, ScrollyText, Step } from '@/components/interactive/Scrollytelling';
+import { Step } from '@/components/interactive/Scrollytelling';
 import { NLPVisualizer } from '@/components/interactive/NLPVisualizer';
 import { InteractiveArticleLayout } from '@/components/interactive/InteractiveArticleLayout';
 import { getArticleBySlug } from '@/lib/article-service';
@@ -24,27 +24,27 @@ export default async function BlogPost() {
       articleSlug="from-bow-to-word2vec"
       authorId="1"
       articleContent={article?.content || ''}
-    >
-      <div className="max-w-7xl mx-auto">
-        <ScrollyProvider>
-          {/* Left Column: The Story / Text */}
-          <ScrollyText>
-            <div className="prose prose-lg dark:prose-invert max-w-none">
-              
+      youtubeVideoUrl="https://www.youtube.com/embed/ZVZy5QaibMc?si=jnsW4B59Ok-a0Yz0"
+      scrollyTextContent={
+        <div className="prose prose-lg dark:prose-invert max-w-none">
               <Step stepIndex={0}>
-                <h2>Bag of Words (BoW)</h2>
-                <p>
-                  Imagine you take a sentence, write each word on a separate piece of paper, and throw them all into a grocery bag. If you shake the bag and look inside, you still know exactly <em>what</em> words you have and <em>how many</em> of each there are. But you've completely lost the sentence structure.
-                </p>
-                <p>
-                  In standard NLP, this is defined simply as an array of counts. For example, a document vector looks like this: <code>[count_of_word1, count_of_word2...]</code>.
-                </p>
-                <p>
-                  <strong>Why is this useful?</strong> It helps classifiers understand the general topic. If an email has high counts of words like "free," "winner," and "click," BoW gives an algorithm enough mathematical evidence to confidently classify it as Spam.
-                </p>
+                <div className="sticky top-[30vh] z-10 mt-8">
+                  <h2 className="mt-0">Bag of Words (BoW)</h2>
+                  <p>
+                    Imagine you take a sentence, write each word on a separate piece of paper, and throw them all into a grocery bag. If you shake the bag and look inside, you still know exactly <em>what</em> words you have and <em>how many</em> of each there are. But you've completely lost the sentence structure.
+                  </p>
+                  <p>
+                    In standard NLP, this is defined simply as an array of counts. For example, a document vector looks like this: <code>[count_of_word1, count_of_word2...]</code>.
+                  </p>
+                  <p>
+                    <strong>Why is this useful?</strong> It helps classifiers understand the general topic. If an email has high counts of words like "free," "winner," and "click," BoW gives an algorithm enough mathematical evidence to confidently classify it as Spam.
+                  </p>
+                </div>
                 <div className="lg:hidden mt-8 mb-8 h-[450px] w-full">
                   <NLPVisualizer stepOverride={0} />
                 </div>
+                {/* Spacer to keep Step 0 active while scrolling past the tall right header on laptop screens */}
+                <div className="hidden lg:block h-[700px] w-full pointer-events-none opacity-0" aria-hidden="true" />
               </Step>
 
               <Step stepIndex={1}>
@@ -134,15 +134,10 @@ export default async function BlogPost() {
               </Step>
               
             </div>
-          </ScrollyText>
-
-          {/* Right Column: The Sticky Visualizer */}
-          <ScrollyVisualizer>
-            <NLPVisualizer />
-          </ScrollyVisualizer>
-
-        </ScrollyProvider>
-      </div>
-    </InteractiveArticleLayout>
+      }
+      scrollyVisualizerContent={
+        <NLPVisualizer />
+      }
+    />
   );
 }

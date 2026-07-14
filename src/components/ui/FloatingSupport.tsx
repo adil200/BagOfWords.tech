@@ -16,6 +16,7 @@ declare global {
 export function FloatingSupport() {
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState('100');
+  const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -49,7 +50,8 @@ export function FloatingSupport() {
     // Reset after close animation completes
     setTimeout(() => {
       setIsSuccess(false);
-      setAmount('5');
+      setAmount('100');
+      setMessage('');
       setError('');
     }, 300);
   };
@@ -90,6 +92,9 @@ export function FloatingSupport() {
         name: 'BagOfWords.tech',
         description: 'Support the author',
         order_id: orderId,
+        notes: {
+          message: message || "No message provided",
+        },
         handler: () => {
           setIsSuccess(true);
           fireConfetti();
@@ -189,6 +194,18 @@ export function FloatingSupport() {
                   onWheel={(e) => e.currentTarget.blur()}
                   className="pl-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min="1"
+                />
+              </div>
+
+              {/* Optional Message */}
+              <div className="w-full mt-2">
+                <Input
+                  type="text"
+                  placeholder="Optional message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full"
+                  maxLength={255}
                 />
               </div>
 

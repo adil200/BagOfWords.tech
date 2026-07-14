@@ -127,8 +127,8 @@ export function ClientHome({ featuredArticles, categories }: { featuredArticles:
       <section className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-8 text-center">Featured Articles</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredArticles.map((article) => (
-            <ArticleCard key={article.slug} article={article} />
+          {featuredArticles.map((article, index) => (
+            <ArticleCard key={article.slug} article={article} priority={index <= 2} />
           ))}
         </div>
       </section>
@@ -202,6 +202,7 @@ export function ClientHome({ featuredArticles, categories }: { featuredArticles:
               sizes="(max-width: 767px) 100vw, 50vw"
               className="object-cover"
               data-ai-hint="team collaboration"
+              unoptimized={true}
               />
           </div>
           <h3 className="text-2xl font-bold mb-3">Join Our Community</h3>

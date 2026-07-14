@@ -1,4 +1,5 @@
 import React from 'react';
+import { ScrollyProvider } from './Scrollytelling';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -33,7 +34,11 @@ interface InteractiveArticleLayoutProps {
    * the article covers so the AI has something meaningful to work with.
    */
   articleContent: string;
-  children: React.ReactNode;
+  /** Optional YouTube video URL to display below the summary block */
+  youtubeVideoUrl?: string;
+  scrollyTextContent?: React.ReactNode;
+  scrollyVisualizerContent?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const AVATAR_URL =
@@ -49,75 +54,129 @@ export function InteractiveArticleLayout({
   articleSlug,
   authorId,
   articleContent,
+  youtubeVideoUrl,
+  scrollyTextContent,
+  scrollyVisualizerContent,
   children,
 }: InteractiveArticleLayoutProps) {
   const authorDetails = getAuthorById(authorId);
+  const isIntegratedLayout = !!(scrollyTextContent && scrollyVisualizerContent);
+
+  const LeftHeader = (
+    <>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {tags.map((tag) => (
+          <Link
+            key={tag.label}
+            href={`/articles?query=${encodeURIComponent(tag.queryOverride ?? tag.label)}`}
+          >
+            <Badge
+              variant="secondary"
+              className={
+                tag.variant === 'accent'
+                  ? 'text-sm uppercase tracking-wider bg-accent/10 text-accent hover:bg-accent/20 transition-colors cursor-pointer'
+                  : 'text-sm uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer'
+              }
+            >
+              {tag.label}
+            </Badge>
+          </Link>
+        ))}
+      </div>
+      <h1 className="text-4xl lg:text-5xl font-extrabold text-primary mb-6 leading-tight tracking-tight">
+        {title}
+        {subtitle && (
+          <>
+            <br />
+            <span className="text-muted-foreground">{subtitle}</span>
+          </>
+        )}
+      </h1>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground text-sm">
+        <div className="flex items-center">
+          <CalendarDays className="h-4 w-4 mr-1.5" />
+          {date}
+        </div>
+        <div className="flex items-center">
+          <Clock className="h-4 w-4 mr-1.5" />
+          {readingTime}
+        </div>
+      </div>
+    </>
+  );
+
+  const RightHeader = (
+    <>
+      <ArticleSummaryGenerator
+        articleContent={articleContent}
+        articleTitle={title}
+      />
+      {youtubeVideoUrl && (
+        <div className="w-full aspect-video rounded-xl overflow-hidden shadow-md border border-accent/30">
+          <iframe 
+            className="w-full h-full"
+            src={youtubeVideoUrl} 
+            title="YouTube video player" 
+            frameBorder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerPolicy="strict-origin-when-cross-origin" 
+            allowFullScreen
+          ></iframe>
+        </div>
+      )}
+    </>
+  );
 
   return (
     <article className="py-8 relative">
-      {/* ── Header ── */}
-      <header className="mb-12">
-        {/* Two-column layout on desktop: title/meta left, summary right */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-10">
-          {/* Left: badges + title + meta */}
-          <div className="flex-1 min-w-0">
-            {/* Top badge row */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {tags.map((tag) => (
-                <Link
-                  key={tag.label}
-                  href={`/articles?query=${encodeURIComponent(tag.queryOverride ?? tag.label)}`}
-                >
-                  <Badge
-                    variant="secondary"
-                    className={
-                      tag.variant === 'accent'
-                        ? 'text-sm uppercase tracking-wider bg-accent/10 text-accent hover:bg-accent/20 transition-colors cursor-pointer'
-                        : 'text-sm uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer'
-                    }
-                  >
-                    {tag.label}
-                  </Badge>
-                </Link>
-              ))}
+      {isIntegratedLayout ? (
+        <ScrollyProvider>
+          <div className="flex flex-col lg:flex-row lg:items-stretch lg:gap-10">
+            {/* Left Column */}
+            <div className="w-full lg:w-1/2">
+              <header className="mb-12">
+                {LeftHeader}
+              </header>
+              {/* Mobile RightHeader: shown below title on mobile */}
+              <div className="flex lg:hidden flex-col gap-6 mb-12">
+                {RightHeader}
+              </div>
+              <div className="w-full pb-[50vh]">
+                {scrollyTextContent}
+              </div>
             </div>
 
-            {/* Title */}
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-primary mb-6 leading-tight tracking-tight">
-              {title}
-              {subtitle && (
-                <>
-                  <br />
-                  <span className="text-muted-foreground">{subtitle}</span>
-                </>
-              )}
-            </h1>
-
-            {/* Date & reading time */}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground text-sm">
-          <div className="flex items-center">
-            <CalendarDays className="h-4 w-4 mr-1.5" />
-            {date}
+            {/* Right Column (Desktop Only) */}
+            <div className="hidden lg:block lg:w-1/2 mt-6 lg:mt-0 relative">
+              <div className="flex flex-col gap-6 mb-12">
+                {RightHeader}
+              </div>
+              <div className="flex w-full sticky top-24 h-[calc(100vh-6rem)] max-h-[800px] items-center justify-center">
+                <div className="w-full max-h-full overflow-hidden">
+                  {scrollyVisualizerContent}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-1.5" />
-            {readingTime}
-          </div>
-        </div>
-          </div>{/* end left column */}
+        </ScrollyProvider>
+      ) : (
+        <>
+          {/* ── Header ── */}
+          <header className="mb-12">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:gap-10">
+              <div className="flex-1 min-w-0">
+                {LeftHeader}
+              </div>
+              <div className="lg:w-[520px] xl:w-[600px] shrink-0 mt-6 lg:mt-0 flex flex-col gap-6">
+                {RightHeader}
+              </div>
+            </div>
+          </header>
 
-          {/* Right: compact AI Summary — beside title on desktop, below on mobile */}
-          <div className="lg:w-[520px] xl:w-[600px] shrink-0 mt-6 lg:mt-0">
-            <ArticleSummaryGenerator
-              articleContent={articleContent}
-              articleTitle={title}
-            />
-          </div>
-        </div>{/* end two-column flex */}
-      </header>
-
-      {/* ── Scrollytelling content (passed as children) ── */}
-      {children}
+          {/* ── Scrollytelling content (passed as children) ── */}
+          {children}
+        </>
+      )}
 
       {/* ── Footer ── */}
       <div className="mt-16">

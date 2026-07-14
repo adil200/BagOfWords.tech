@@ -6,9 +6,10 @@ import { CalendarDays, Clock, TagIcon } from 'lucide-react';
 
 interface ArticleCardProps {
   article: any;
+  priority?: boolean;
 }
 
-export function ArticleCard({ article }: ArticleCardProps) {
+export function ArticleCard({ article, priority = false }: ArticleCardProps) {
   return (
     <Card className="overflow-hidden flex flex-col h-full shadow-lg hover:shadow-xl hover:shadow-accent/40 transition-shadow duration-300">
       <CardHeader className="p-0">
@@ -21,6 +22,8 @@ export function ArticleCard({ article }: ArticleCardProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
               data-ai-hint="abstract tech"
+              unoptimized={true}
+              priority={priority}
             />
           </Link>
         )}

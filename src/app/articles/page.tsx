@@ -146,8 +146,8 @@ export default async function ArticlesPage({
         <section>
           {currentView === 'grid' ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {paginatedArticles.map((article) => (
-                <ArticleCard key={article.slug} article={article} />
+              {paginatedArticles.map((article, index) => (
+                <ArticleCard key={article.slug} article={article} priority={index <= 2} />
               ))}
             </div>
           ) : (
