@@ -28,7 +28,7 @@ export default async function BlogPost() {
       scrollyTextContent={
         <div className="prose prose-lg dark:prose-invert max-w-none">
               <Step stepIndex={0}>
-                <div className="sticky top-[30vh] z-10 mt-8">
+                <div className="lg:sticky lg:top-[30vh] z-10 mt-8 relative bg-background/80 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none pb-4">
                   <h2 className="mt-0">Bag of Words (BoW)</h2>
                   <p>
                     Imagine you take a sentence, write each word on a separate piece of paper, and throw them all into a grocery bag. If you shake the bag and look inside, you still know exactly <em>what</em> words you have and <em>how many</em> of each there are. But you've completely lost the sentence structure.
