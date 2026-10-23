@@ -10,6 +10,13 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "bagofwords-db",
+			"database_id": "5a905458-14cd-4ead-b5cd-9e30a7158c34"
+		}
+	],
 	"services": [
 		{
 			"binding": "WORKER_SELF_REFERENCE",
