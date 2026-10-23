@@ -20,16 +20,21 @@ export const ASSET_MAPPING: Record<string, string> = {
   'Profile Photo (1).jpg': 'Profile Photo (1).jpg',
   'Profile Photo-compressed (1).jpg': 'Profile Photo-compressed (1).jpg',
   'WhatsApp Image 2025-11-03 at 14.53.34_361a3eec (1).jpg': 'WhatsApp Image 2025-11-03 at 14.53.34_361a3eec (1).jpg',
+  'WhatsApp Image 2025-11-03 at 14.53.34_361a3eec (1)': 'WhatsApp Image 2025-11-03 at 14.53.34_361a3eec (1).jpg',
+  'compressedImage (1)': 'compressedImage (1).jpeg',
+  'compressedImage (1).jpeg': 'compressedImage (1).jpeg',
 
   // Articles & Features
   'Firewall.png': 'Firewall (1).png',
   'Firewall (1).png': 'Firewall (1).png',
   'PasswordCrypto.png': 'PasswordCrypto (1).png',
   'PasswordCrypto (1).png': 'PasswordCrypto (1).png',
-  'diffusion.png': 'compressedImage1 (1).png',
-  'compressedImage1 (1).png': 'compressedImage1 (1).png',
-  'PyRegExp.png': 'compressedImage (1).jpeg',
-  'compressedImage (1).jpeg': 'compressedImage (1).jpeg',
+  'diffusion.webp': 'diffusion.webp',
+  'diffusion.png': 'diffusion.webp',
+  'diffusion': 'diffusion.webp',
+  'PyRegExp.webp': 'PyRegExp.webp',
+  'PyRegExp.png': 'PyRegExp.webp',
+  'PyRegExp': 'PyRegExp.webp',
   'Generated Image November 08, 2025 - 4_33PM (1).png': 'Generated Image November 08, 2025 - 4_33PM (1).png',
 
   // Imagen 3 Tutorial Screenshots

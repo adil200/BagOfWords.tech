@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Lightbulb, Users, Target, Mail, Linkedin, Github, Globe } from 'lucide-react';
 import { authors, getAppwriteImageUrl } from '@/lib/data';
+import { getR2AssetUrl } from '@/lib/file-mapping';
 import { Button } from '@/components/ui/button';
-
-
 
 export default function AboutPage() {
   const adilNaib = authors.find(author => author.name === "Adil Naib");
+  const authorAvatarUrl = getR2AssetUrl('compressedImage (1).jpeg');
 
   return (
     <div className="max-w-4xl mx-auto py-8 space-y-12 article-content"> {/* Added article-content class here */}
@@ -54,12 +54,12 @@ export default function AboutPage() {
           </h2>
           <Card className="shadow-sm overflow-hidden">
             <div className="md:flex">
-              {adilNaib.avatarUrl && (
+              {authorAvatarUrl && (
                 <div className="md:w-1/3 flex justify-center md:block p-6 md:p-0">
                   <div className="relative w-40 h-40 md:w-full md:h-full rounded-full md:rounded-lg overflow-hidden shadow-md">
                     <Image
-                      src={adilNaib.avatarUrl}
-                      alt={adilNaib.name}
+                      src={authorAvatarUrl}
+                      alt={adilNaib?.name || "Adil Naib"}
                       fill
                       sizes="(max-width: 767px) 160px, 33vw"
                       className="object-cover"

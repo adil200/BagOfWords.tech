@@ -29,7 +29,7 @@ const getPdfViewUrl = () => {
 
 // Helper function to get cover image URL
 const getCoverImageUrl = () => {
-  return getR2AssetUrl('GitHub-CoPilot-770x433 (1).avif');
+  return getR2AssetUrl('WhatsApp Image 2025-11-03 at 14.53.34_361a3eec (1).jpg');
 };
 
 export default function GH300NotesPage() {

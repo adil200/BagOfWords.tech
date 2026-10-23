@@ -20,7 +20,7 @@ export const authors: Author[] = [
   {
     id: '1',
     name: 'Adil Naib',
-    avatarUrl: getR2AssetUrl('adil (1).png'),
+    avatarUrl: getR2AssetUrl('compressedImage (1).jpeg'),
     bio: 'Adil Naib is a data science enthusiast and Kaggle Notebooks Expert, specializing in EDA, Data Visualization, and Predictive Modelling. He shares his insights through blogs and aims to contribute significantly to the data science community.',
   },
   {
