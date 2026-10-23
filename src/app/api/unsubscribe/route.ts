@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeD1Query } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/unsubscribe?email=<email>
  *
