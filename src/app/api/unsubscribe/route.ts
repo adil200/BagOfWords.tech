@@ -1,23 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { serverDatabases } from '@/lib/appwrite-server';
-import { Query } from 'node-appwrite';
-
-const DATABASE_ID           = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
-const NEWSLETTER_COLLECTION = process.env.NEXT_PUBLIC_APPWRITE_NEWSLETTER_COLLECTION_ID!;
+import { executeD1Query } from '@/lib/db';
+import { sendEmail } from '@/lib/email';
 
 /**
  * GET /api/unsubscribe?email=<email>
  *
  * Called when a user clicks the "Unsubscribe" link in their welcome email.
- * 1. Deletes the subscriber row from the newsletter collection.
+ * 1. Deletes the subscriber row from the Cloudflare D1 newsletter table.
  * 2. Returns a branded HTML success page.
- * 3. The Appwrite welcome_mail_ function will send adil@bagofwords.tech a
- *    notification (this route handles it on the Next.js side so we don't need
- *    to expose the raw Appwrite function URL in the email).
  */
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email')?.trim();
+    const email = searchParams.get('email')?.trim().toLowerCase();
 
     if (!email) {
         return new NextResponse(errorPage('No email address provided.'), {
@@ -26,55 +20,19 @@ export async function GET(request: NextRequest) {
         });
     }
 
-    let deleted = false;
-
     try {
-        const existing = await serverDatabases.listDocuments(
-            DATABASE_ID,
-            NEWSLETTER_COLLECTION,
-            [Query.equal('email', email)]
-        );
+        await executeD1Query('DELETE FROM newsletter WHERE email = ?', [email]);
+        console.log(`[unsubscribe] Processed unsubscribe for ${email}`);
 
-        if (existing.total > 0) {
-            const docId = existing.documents[0].$id;
-            await serverDatabases.deleteDocument(DATABASE_ID, NEWSLETTER_COLLECTION, docId);
-            deleted = true;
-            console.log(`[unsubscribe] Deleted subscriber ${email} (doc: ${docId})`);
-        } else {
-            console.log(`[unsubscribe] No record found for ${email}`);
-        }
+        // Optional notification to owner
+        sendEmail({
+            to: process.env.OWNER_EMAIL || 'adil@bagofwords.tech',
+            subject: `User unsubscribed: ${email}`,
+            html: `<p>The subscriber <strong>${email}</strong> has unsubscribed from the newsletter.</p>`,
+        }).catch((e) => console.error('[unsubscribe notification error]', e));
     } catch (err) {
         console.error('[unsubscribe] DB error:', err);
-        // Still show success to user — don't expose internals
     }
-
-    // Fire-and-forget: notify adil@bagofwords.tech via welcome_mail_ function
-    try {
-        const functionEndpoint  = process.env.APPWRITE_FUNCTION_ENDPOINT;
-        const apiKey            = process.env.APPWRITE_API_KEY;
-        const functionId        = process.env.WELCOME_MAIL_FUNCTION_ID;
-
-        if (functionEndpoint && apiKey && functionId) {
-            // Trigger unsubscribe path inside the Appwrite function
-            fetch(
-                `${functionEndpoint}/v1/functions/${functionId}/executions`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Appwrite-Project': process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!,
-                        'X-Appwrite-Key': apiKey,
-                    },
-                    // Pass a special flag so the function knows this is an unsubscribe
-                    body: JSON.stringify({
-                        _action: 'unsubscribe',
-                        email,
-                        deleted,
-                    }),
-                }
-            ).catch(e => console.error('[unsubscribe] notify error:', e));
-        }
-    } catch (_) { /* non-critical */ }
 
     return new NextResponse(successPage(email), {
         status: 200,

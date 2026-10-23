@@ -36,7 +36,7 @@ function generateIndex() {
         author: {
           id: '1',
           name: data.author || 'Adil Naib',
-          avatarUrl: 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin',
+          avatarUrl: 'https://assets.bagofwords.tech/adil%20(1).png',
           bio: 'AI & ML enthusiast',
         },
         publishDate: publishDate,

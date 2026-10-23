@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Lightbulb, Users, Target, Mail, Linkedin, Github, Globe } from 'lucide-react';
 import { authors, getAppwriteImageUrl } from '@/lib/data';
 import { Button } from '@/components/ui/button';
-import { FILE_IDS, BUCKET_ID, PROJECT_ID } from '@/lib/file-mapping';
 
 
 

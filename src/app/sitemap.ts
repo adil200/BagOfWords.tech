@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://68c2e13e291a22af4d5a.appwrite.network';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://bagofwords.tech';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // Keep sitemap simple and static during build

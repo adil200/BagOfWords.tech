@@ -172,7 +172,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               <section className="mt-12 pt-8 border-t bg-card p-6 rounded-lg shadow-sm">
                 <div className="flex items-start gap-4">
                   <Avatar className="h-16 w-16">
-                    {authorDetails.avatarUrl && <AvatarImage src={authorDetails.name === 'Adil Naib' ? 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin' : authorDetails.avatarUrl} alt={authorDetails.name} className="object-cover" />}
+                    {authorDetails.avatarUrl && <AvatarImage src={authorDetails.avatarUrl} alt={authorDetails.name} className="object-cover" />}
                     <AvatarFallback className="text-2xl">{authorDetails.name.substring(0, 1)}</AvatarFallback>
                   </Avatar>
                   <div>

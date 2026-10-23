@@ -41,8 +41,9 @@ interface InteractiveArticleLayoutProps {
   children?: React.ReactNode;
 }
 
-const AVATAR_URL =
-  'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin';
+import { getR2AssetUrl } from '@/lib/file-mapping';
+
+const AVATAR_URL = getR2AssetUrl('adil (1).png');
 
 export function InteractiveArticleLayout({
   title,

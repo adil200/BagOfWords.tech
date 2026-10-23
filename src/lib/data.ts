@@ -1,44 +1,26 @@
-import { getFilePreview, getFileView } from './appwrite';
 import type { Author, Category, Article, Comment } from '@/types';
-import { FILE_IDS, BUCKET_ID, PROJECT_ID } from './file-mapping';
+import { getR2AssetUrl } from './file-mapping';
 
-// Helper functions for Appwrite URLs
+// Helper functions for Cloudflare R2 URLs
 export const getAppwriteImageUrl = (filename: string) => {
-  const fileId = FILE_IDS[filename as keyof typeof FILE_IDS];
-
-  if (!fileId) {
-    console.warn(`File ID not found for: ${filename}`);
-    return '';
-  }
-
-  // Return the RAW view URL so next/image can intercept and optimize it without double-processing
-  return `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=${PROJECT_ID}`;
+  return getR2AssetUrl(filename);
 };
 
 export const getOptimizedHtmlImageUrl = (filename: string, width: number = 1080) => {
   const rawUrl = getAppwriteImageUrl(filename);
   if (!rawUrl) return '';
-  
-  // Wrap in Next.js built-in image optimizer for raw <img> tags
   return `/_next/image?url=${encodeURIComponent(rawUrl)}&w=${width}&q=75`;
 };
 
 export const getAppwriteFileUrl = (filename: string) => {
-  const fileId = FILE_IDS[filename as keyof typeof FILE_IDS];
-
-  if (!fileId) {
-    console.warn(`File ID not found for: ${filename}`);
-    return '';
-  }
-
-  return `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=${PROJECT_ID}`;
+  return getR2AssetUrl(filename);
 };
 
 export const authors: Author[] = [
   {
     id: '1',
     name: 'Adil Naib',
-    avatarUrl: 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/69eb8dbd000b0cb3c9ad/view?project=68a9e75000030fe77800&mode=admin',
+    avatarUrl: getR2AssetUrl('adil (1).png'),
     bio: 'Adil Naib is a data science enthusiast and Kaggle Notebooks Expert, specializing in EDA, Data Visualization, and Predictive Modelling. He shares his insights through blogs and aims to contribute significantly to the data science community.',
   },
   {

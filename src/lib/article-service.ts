@@ -9,6 +9,8 @@ import matter from 'gray-matter';
 import type { Article } from '@/types';
 
 
+import { getR2AssetUrl } from '@/lib/file-mapping';
+
 // Helper to read and parse an MDX file
 function getArticleData(fileName: string): any {
   const fullPath = path.join(process.cwd(), 'src/content/articles', fileName);
@@ -29,7 +31,7 @@ function getArticleData(fileName: string): any {
     author: {
       id: '1',
       name: data.author || 'Adil Naib',
-      avatarUrl: 'https://fra.cloud.appwrite.io/v1/storage/buckets/68c2db3e000567f1099a/files/68c51529003933a7cb34/view?project=68a9e75000030fe77800&mode=admin',
+      avatarUrl: getR2AssetUrl('adil (1).png'),
       bio: 'AI & ML enthusiast',
     },
     publishDate: publishDate,
@@ -39,7 +41,7 @@ function getArticleData(fileName: string): any {
     heroImageUrl: data.heroImageUrl || '',
     excerpt: data.excerpt || '',
     content: content,
-    status: 'published',
+    status: 'published' as const,
     featured: data.featured || false,
     views: data.views || 0,
   };
@@ -77,7 +79,7 @@ export async function getArticleBySlug(slug: string): Promise<any | null> {
     try {
       const fallbackModule = await import('./articles-index.json');
       const fallbackArticles = fallbackModule.default || fallbackModule;
-      return fallbackArticles.find((a: Article) => a.slug === slug) || null;
+      return (fallbackArticles as any[]).find((a) => a.slug === slug) || null;
     } catch (e) {
       const { articles: staticArticles } = await import('./data');
       return staticArticles.find((a: Article) => a.slug === slug) || null;
@@ -107,7 +109,7 @@ export async function getAllArticleSlugs(): Promise<string[]> {
     try {
       const fallbackModule = await import('./articles-index.json');
       const fallbackArticles = fallbackModule.default || fallbackModule;
-      return fallbackArticles.map((a: Article) => a.slug);
+      return (fallbackArticles as any[]).map((a) => a.slug);
     } catch (e) {
       const { articles: staticArticles } = await import('./data');
       return staticArticles.map((a: Article) => a.slug);

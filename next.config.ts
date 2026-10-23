@@ -17,11 +17,11 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'cloud.appwrite.io',
+                hostname: 'assets.bagofwords.tech',
             },
             {
                 protocol: 'https',
-                hostname: 'fra.cloud.appwrite.io',
+                hostname: '*.r2.dev',
             },
             {
                 protocol: 'https',

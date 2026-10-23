@@ -1,384 +1,280 @@
 'use server';
 
-import { serverDatabases } from '@/lib/appwrite-server';
-import { Client, Users, ID, Query, Query as AppwriteQuery } from 'node-appwrite';
+import { executeD1Query } from '@/lib/db';
+import { sendContactNotification, sendWelcomeEmail, sendNewSubscriberAlert } from '@/lib/email';
 import { v4 as uuidv4 } from 'uuid';
 import type { Comment } from '@/types';
 
-const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
-const CONTACT_COLLECTION_ID = process.env.NEXT_PUBLIC_APPWRITE_CONTACT_COLLECTION_ID!;
-const NEWSLETTER_COLLECTION_ID = process.env.NEXT_PUBLIC_APPWRITE_NEWSLETTER_COLLECTION_ID!;
-const COMMENTS_COLLECTION_ID = process.env.NEXT_PUBLIC_APPWRITE_COMMENTS_COLLECTION_ID!;
-const PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!;
-const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY!;
-
+/**
+ * 1. Subscribe to Newsletter (Cloudflare D1 + Instant Email)
+ */
 export async function subscribeToNewsletter(prevState: any, formData: FormData) {
-    try {
-        const email = formData.get('email')?.toString();
+  try {
+    const email = formData.get('email')?.toString().trim().toLowerCase();
 
-        if (!email) {
-            return { success: false, message: 'Email is required' };
-        }
-
-        // Check if email already exists in newsletter collection
-        try {
-            const existingNewsletterSubscriptions = await serverDatabases.listDocuments(
-                DATABASE_ID,
-                NEWSLETTER_COLLECTION_ID,
-                [Query.equal('email', email)]
-            );
-
-            if (existingNewsletterSubscriptions.total > 0) {
-                console.log('Email already subscribed to newsletter:', email);
-                return {
-                    success: true,
-                    message: 'You are already subscribed to our newsletter!'
-                };
-            }
-        } catch (error) {
-            console.error('Error checking newsletter collection:', error);
-            return {
-                success: false,
-                message: 'Failed to verify subscription. Please try again later.'
-            };
-        }
-
-        // Save to the newsletter collection and trigger the welcome email
-        const newsletterFormData = new FormData();
-        newsletterFormData.append('email', email);
-        const result = await subscribeToNewsletter1({}, newsletterFormData);
-        return result;
-
-    } catch (error) {
-        console.error('Subscription error:', error);
-        return {
-            success: false,
-            message: 'An unexpected error occurred. Please try again.'
-        };
+    if (!email) {
+      return { success: false, message: 'Email is required' };
     }
+
+    // Check if email already exists in newsletter table
+    const checkRes = await executeD1Query('SELECT id FROM newsletter WHERE email = ?', [email]);
+    if (checkRes.success && checkRes.results.length > 0) {
+      return {
+        success: true,
+        message: 'You are already subscribed to our newsletter!',
+      };
+    }
+
+    const id = uuidv4();
+    const insertRes = await executeD1Query(
+      'INSERT INTO newsletter (id, email, status) VALUES (?, ?, ?)',
+      [id, email, 'active']
+    );
+
+    if (!insertRes.success) {
+      return {
+        success: false,
+        message: 'Failed to record subscription. Please try again.',
+      };
+    }
+
+    // Fire welcome email to subscriber & alert owner asynchronously
+    const name = email.split('@')[0];
+    Promise.all([
+      sendWelcomeEmail(email, name),
+      sendNewSubscriberAlert(email),
+    ]).catch((err) => console.error('[Subscription Email Error]', err));
+
+    return {
+      success: true,
+      message: 'Successfully subscribed to our newsletter!',
+    };
+  } catch (error) {
+    console.error('Subscription error:', error);
+    return {
+      success: false,
+      message: 'An unexpected error occurred. Please try again.',
+    };
+  }
 }
 
-
-
-export async function submitContactForm(prevState: any, formData: FormData) {
-    try {
-        const name = formData.get('name') as string;
-        const email = formData.get('email') as string;
-        const message = formData.get('message') as string;
-
-        if (!name || !email || !message) {
-            return { success: false, message: 'All fields are required' };
-        }
-
-        // Save contact form to database
-        const response = await serverDatabases.createDocument(
-            DATABASE_ID,
-            CONTACT_COLLECTION_ID,
-            ID.unique(),
-            {
-                name,
-                email,
-                message,
-                status: 'new'
-            }
-        );
-
-        console.log('Contact form submitted successfully:', response.$id);
-
-        // Create Appwrite user
-        const client = new Client()
-            .setEndpoint('https://fra.cloud.appwrite.io/v1')
-            .setProject(PROJECT_ID)
-            .setKey(APPWRITE_API_KEY);
-
-        const users = new Users(client);
-
-        try {
-            // Check if user already exists by listing users with this email
-            const existingUsers = await users.list([
-                AppwriteQuery.equal('email', email)
-            ]);
-
-            if (existingUsers.total === 0) {
-                // User doesn't exist, create a new one
-                const userId = uuidv4();
-                // Generate a secure random password (user can reset it later if needed)
-                const randomPassword = `${uuidv4()}-${uuidv4()}`.substring(0, 32);
-                
-                await users.create(
-                    userId,
-                    email,
-                    undefined, // phone (optional)
-                    randomPassword, // password
-                    name // name
-                );
-
-                console.log('User created successfully in Appwrite Auth:', userId);
-            } else {
-                console.log('User already exists in Appwrite Auth:', existingUsers.users[0].$id);
-            }
-        } catch (userError) {
-            // Log the error but don't fail the contact form submission
-            console.error('Error creating user in Appwrite Auth:', userError);
-        }
-
-        return { success: true, message: 'Contact form submitted successfully', id: response.$id };
-    } catch (error) {
-        console.error('Contact form submission error:', error);
-        return { success: false, message: 'Failed to submit contact form. Please try again.' };
-    }
-}
-
+/** Backward compatibility alias */
 export async function subscribeToNewsletter1(prevState: any, formData: FormData) {
-    try {
-        const email = formData.get('email') as string;
-        const name  = email ? email.split('@')[0] : '';
-
-        if (!email) {
-            return { success: false, message: 'Email is required' };
-        }
-
-        // Write to newsletter DB
-        const response = await serverDatabases.createDocument(
-            DATABASE_ID,
-            NEWSLETTER_COLLECTION_ID,
-            ID.unique(),
-            {
-                email,
-                status: 'active'
-            }
-        );
-
-        console.log('Newsletter subscription successful:', response.$id);
-
-        // Call the welcome_mail_ Appwrite Function directly via HTTP.
-        // This fires every time a row is inserted, regardless of auth state.
-        try {
-            const functionEndpoint = process.env.APPWRITE_FUNCTION_ENDPOINT; // e.g. https://fra.cloud.appwrite.io/v1/functions/<FUNCTION_ID>/executions
-            const apiKey           = process.env.APPWRITE_API_KEY;
-            const functionId       = process.env.WELCOME_MAIL_FUNCTION_ID;   // e.g. 68abc...
-
-            if (functionEndpoint && apiKey && functionId) {
-                const execResponse = await fetch(
-                    `${functionEndpoint}/v1/functions/${functionId}/executions`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Appwrite-Project': process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!,
-                            'X-Appwrite-Key': apiKey,
-                        },
-                        body: JSON.stringify({
-                            body: JSON.stringify({ email, name }),
-                            async: false,
-                            method: 'POST',
-                            path: '/',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                    }
-                );
-                const execData = await execResponse.json();
-                console.log('welcome_mail_ function triggered:', execData.$id ?? execData);
-            } else {
-                console.warn('APPWRITE_FUNCTION_ENDPOINT, APPWRITE_API_KEY, or WELCOME_MAIL_FUNCTION_ID not set — skipping welcome email trigger');
-            }
-        } catch (fnErr) {
-            // Don't fail the subscription if the email trigger fails
-            console.error('Failed to trigger welcome_mail_ function:', fnErr);
-        }
-
-        return { success: true, message: 'Successfully subscribed to our newsletter!' };
-    } catch (error) {
-        console.error('Newsletter subscription error:', error);
-        return { success: false, message: 'Failed to subscribe. Please try again.' };
-    }
+  return subscribeToNewsletter(prevState, formData);
 }
 
+/**
+ * 2. Submit Contact Form (Cloudflare D1 + Email Notification)
+ */
+export async function submitContactForm(prevState: any, formData: FormData) {
+  try {
+    const name = (formData.get('name') as string)?.trim();
+    const email = (formData.get('email') as string)?.trim();
+    const message = (formData.get('message') as string)?.trim();
+
+    if (!name || !email || !message) {
+      return { success: false, message: 'All fields are required' };
+    }
+
+    const id = uuidv4();
+    const insertRes = await executeD1Query(
+      'INSERT INTO contacts (id, name, email, message, status) VALUES (?, ?, ?, ?, ?)',
+      [id, name, email, message, 'new']
+    );
+
+    if (!insertRes.success) {
+      return { success: false, message: 'Failed to submit contact form. Please try again.' };
+    }
+
+    // Send email alert to owner
+    sendContactNotification(name, email, message, id).catch((err) =>
+      console.error('[Contact Form Notification Error]', err)
+    );
+
+    return { success: true, message: 'Contact form submitted successfully', id };
+  } catch (error) {
+    console.error('Contact form submission error:', error);
+    return { success: false, message: 'Failed to submit contact form. Please try again.' };
+  }
+}
+
+/**
+ * 3. Add Comment to Cloudflare D1
+ */
 export async function addCommentToAppwrite(
-    articleSlug: string,
-    content: string,
-    authorName: string,
-    authorAvatar?: string,
-    parentId?: string | null,
-    isAuthor?: boolean
+  articleSlug: string,
+  content: string,
+  authorName: string,
+  authorAvatar?: string,
+  parentId?: string | null,
+  isAuthor?: boolean
 ) {
-    try {
-        const response = await serverDatabases.createDocument(
-            DATABASE_ID,
-            COMMENTS_COLLECTION_ID,
-            ID.unique(),
-            {
-                articleSlug,
-                content,
-                authorName,
-                authorAvatar: authorAvatar || '',
-                parentId: parentId || null,
-                isAuthor: isAuthor || false,
-                upvotes: 0,
-                downvotes: 0,
-                timestamp: new Date().toISOString()
-            }
-        );
+  try {
+    const id = uuidv4();
+    const res = await executeD1Query(
+      `INSERT INTO comments (id, article_slug, content, author_name, author_avatar, parent_id, is_author)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [id, articleSlug, content, authorName, authorAvatar || '', parentId || null, isAuthor ? 1 : 0]
+    );
 
-        console.log('Comment added successfully:', response.$id);
-        return { success: true, message: 'Comment added successfully' };
-    } catch (error) {
-        console.error('Add comment error:', error);
-        return { success: false, message: 'Failed to add comment. Please try again.' };
+    if (!res.success) {
+      return { success: false, message: 'Failed to add comment. Please try again.' };
     }
+
+    return { success: true, message: 'Comment added successfully' };
+  } catch (error) {
+    console.error('Add comment error:', error);
+    return { success: false, message: 'Failed to add comment. Please try again.' };
+  }
 }
 
+/**
+ * 4. Fetch Comments from Cloudflare D1 (Organized as Threaded Tree)
+ */
 export async function getCommentsFromAppwrite(articleSlug: string): Promise<Comment[]> {
-    try {
-        const response = await serverDatabases.listDocuments(
-            DATABASE_ID,
-            COMMENTS_COLLECTION_ID,
-            [
-                Query.equal('articleSlug', articleSlug),
-                Query.orderDesc('$createdAt')
-            ]
-        );
+  try {
+    const res = await executeD1Query(
+      'SELECT * FROM comments WHERE article_slug = ? ORDER BY created_at DESC',
+      [articleSlug]
+    );
 
-        const comments = response.documents.map(doc => ({
-            id: doc.$id,
-            content: doc.content,
-            author: {
-                name: doc.authorName,
-                avatarUrl: doc.authorAvatar || undefined
-            },
-            timestamp: doc.timestamp,
-            upvotes: doc.upvotes || 0,
-            downvotes: doc.downvotes || 0,
-            parentId: doc.parentId || null,
-            isAuthor: doc.isAuthor || false,
-            replies: []
-        }));
-
-        // Organize comments into threads
-        const commentMap = new Map<string, Comment>();
-        const rootComments: Comment[] = [];
-
-        // First pass: create all comments
-        comments.forEach(comment => {
-            commentMap.set(comment.id, comment);
-        });
-
-        // Second pass: organize into parent-child relationships
-        comments.forEach(comment => {
-            if (comment.parentId) {
-                const parent = commentMap.get(comment.parentId);
-                if (parent) {
-                    if (!parent.replies) parent.replies = [];
-                    parent.replies.push(comment);
-                }
-            } else {
-                rootComments.push(comment);
-            }
-        });
-
-        return rootComments;
-    } catch (error) {
-        console.error('Get comments error:', error);
-        return [];
+    if (!res.success) {
+      return [];
     }
+
+    const comments: Comment[] = res.results.map((row: any) => ({
+      id: row.id,
+      content: row.content,
+      author: {
+        name: row.author_name,
+        avatarUrl: row.author_avatar || undefined,
+      },
+      timestamp: row.created_at,
+      upvotes: Number(row.upvotes) || 0,
+      downvotes: Number(row.downvotes) || 0,
+      parentId: row.parent_id || null,
+      isAuthor: Boolean(row.is_author),
+      replies: [],
+    }));
+
+    // Organize comments into parent/child threads
+    const commentMap = new Map<string, Comment>();
+    const rootComments: Comment[] = [];
+
+    comments.forEach((comment) => {
+      commentMap.set(comment.id, comment);
+    });
+
+    comments.forEach((comment) => {
+      if (comment.parentId) {
+        const parent = commentMap.get(comment.parentId);
+        if (parent) {
+          if (!parent.replies) parent.replies = [];
+          parent.replies.push(comment);
+        }
+      } else {
+        rootComments.push(comment);
+      }
+    });
+
+    return rootComments;
+  } catch (error) {
+    console.error('Get comments error:', error);
+    return [];
+  }
 }
 
+/**
+ * 5. Upvote a Comment
+ */
 export async function upvoteComment(commentId: string) {
-    try {
-        const comment = await serverDatabases.getDocument(
-            DATABASE_ID,
-            COMMENTS_COLLECTION_ID,
-            commentId
-        );
+  try {
+    const res = await executeD1Query(
+      'UPDATE comments SET upvotes = upvotes + 1 WHERE id = ?',
+      [commentId]
+    );
 
-        await serverDatabases.updateDocument(
-            DATABASE_ID,
-            COMMENTS_COLLECTION_ID,
-            commentId,
-            {
-                upvotes: (comment.upvotes || 0) + 1
-            }
-        );
-
-        return { success: true, message: 'Comment upvoted!' };
-    } catch (error) {
-        console.error('Upvote error:', error);
-        return { success: false, message: 'Failed to upvote comment.' };
+    if (!res.success) {
+      return { success: false, message: 'Failed to upvote comment.' };
     }
+
+    return { success: true, message: 'Comment upvoted!' };
+  } catch (error) {
+    console.error('Upvote error:', error);
+    return { success: false, message: 'Failed to upvote comment.' };
+  }
 }
 
+/**
+ * 6. Downvote a Comment
+ */
 export async function downvoteComment(commentId: string) {
-    try {
-        const comment = await serverDatabases.getDocument(
-            DATABASE_ID,
-            COMMENTS_COLLECTION_ID,
-            commentId
-        );
+  try {
+    const res = await executeD1Query(
+      'UPDATE comments SET downvotes = downvotes + 1 WHERE id = ?',
+      [commentId]
+    );
 
-        await serverDatabases.updateDocument(
-            DATABASE_ID,
-            COMMENTS_COLLECTION_ID,
-            commentId,
-            {
-                downvotes: (comment.downvotes || 0) + 1
-            }
-        );
-
-        return { success: true, message: 'Comment downvoted!' };
-    } catch (error) {
-        console.error('Downvote error:', error);
-        return { success: false, message: 'Failed to downvote comment.' };
+    if (!res.success) {
+      return { success: false, message: 'Failed to downvote comment.' };
     }
+
+    return { success: true, message: 'Comment downvoted!' };
+  } catch (error) {
+    console.error('Downvote error:', error);
+    return { success: false, message: 'Failed to downvote comment.' };
+  }
 }
 
+/**
+ * 7. Generate Article Summary using Gemini
+ */
 export async function generateArticleSummaryAction(articleContent: string): Promise<{ summary?: string; error?: string }> {
-    if (!articleContent.trim()) {
-        return { error: "Article content cannot be empty." };
-    }
+  if (!articleContent.trim()) {
+    return { error: 'Article content cannot be empty.' };
+  }
 
-    const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
-
-    const prompt = `Please provide a concise summary of the following article content. Focus on the main points and key information:
+  const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+  const prompt = `Please provide a concise summary of the following article content. Focus on the main points and key information:
 
 ${articleContent}
 
 Summary:`;
 
-    const { GoogleGenerativeAI } = await import('@google/generative-ai');
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
-    let lastError: any = null;
+  let lastError: any = null;
 
-    for (const modelName of MODELS) {
-        try {
-            console.log(`[generateArticleSummaryAction] Trying model: ${modelName}`);
-            const model = genAI.getGenerativeModel({ model: modelName });
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const summary = response.text();
+  for (const modelName of MODELS) {
+    try {
+      console.log(`[generateArticleSummaryAction] Trying model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const summary = response.text();
 
-            if (summary && summary.trim()) {
-                console.log(`[generateArticleSummaryAction] Summary generated with ${modelName}, length:`, summary.length);
-                return { summary: summary.trim() };
-            } else {
-                console.error(`[generateArticleSummaryAction] Empty summary from ${modelName}`);
-                lastError = new Error('Empty response from model.');
-            }
-        } catch (err: any) {
-            lastError = err;
-            const is503 = err.message?.includes('503') || err.message?.includes('Service Unavailable') || err.message?.includes('high demand');
-            console.warn(`[generateArticleSummaryAction] Model ${modelName} failed${is503 ? ' (503 – retrying with fallback)' : ''}:`, err.message);
-            // Only continue to fallback for transient availability errors
-            if (!is503) break;
-        }
+      if (summary && summary.trim()) {
+        console.log(`[generateArticleSummaryAction] Summary generated with ${modelName}, length:`, summary.length);
+        return { summary: summary.trim() };
+      } else {
+        lastError = new Error('Empty response from model.');
+      }
+    } catch (err: any) {
+      lastError = err;
+      const is503 =
+        err.message?.includes('503') ||
+        err.message?.includes('Service Unavailable') ||
+        err.message?.includes('high demand');
+      console.warn(`[generateArticleSummaryAction] Model ${modelName} failed${is503 ? ' (503 – retrying with fallback)' : ''}:`, err.message);
+      if (!is503) break;
     }
+  }
 
-    console.error('[generateArticleSummaryAction] All models failed:', lastError);
-    let errorMessage = 'An error occurred while generating the summary.';
-    if (lastError?.message) {
-        errorMessage += ` Details: ${lastError.message}`;
-    }
-    return { error: errorMessage };
+  console.error('[generateArticleSummaryAction] All models failed:', lastError);
+  let errorMessage = 'An error occurred while generating the summary.';
+  if (lastError?.message) {
+    errorMessage += ` Details: ${lastError.message}`;
+  }
+  return { error: errorMessage };
 }

@@ -15,24 +15,21 @@ export const metadata: Metadata = {
   },
 };
 
-const PDF_FILE_ID = '69086fff002bcc36b8fb';
-const COVER_IMAGE_ID = '690874ca001aa19d80d4';
-const BUCKET_ID = '68c2db3e000567f1099a';
-const PROJECT_ID = '68a9e75000030fe77800';
+import { getR2AssetUrl } from '@/lib/file-mapping';
 
 // Helper function to get PDF download URL
 const getPdfDownloadUrl = () => {
-  return `https://fra.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${PDF_FILE_ID}/download?project=${PROJECT_ID}`;
+  return getR2AssetUrl('GH-300 (3).pdf');
 };
 
 // Helper function to get PDF view URL
 const getPdfViewUrl = () => {
-  return `https://fra.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${PDF_FILE_ID}/view?project=${PROJECT_ID}`;
+  return getR2AssetUrl('GH-300 (3).pdf');
 };
 
 // Helper function to get cover image URL
 const getCoverImageUrl = () => {
-  return `https://fra.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${COVER_IMAGE_ID}/view?project=${PROJECT_ID}`;
+  return getR2AssetUrl('GitHub-CoPilot-770x433 (1).avif');
 };
 
 export default function GH300NotesPage() {
@@ -123,7 +120,7 @@ export default function GH300NotesPage() {
         </h2>
         <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-2xl border border-accent/20">
           <iframe
-            src={`https://fra.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${PDF_FILE_ID}/view?project=${PROJECT_ID}`}
+            src={getPdfViewUrl()}
             className="w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[800px]"
             title="GH-300 GitHub Copilot Notes Preview"
           />
