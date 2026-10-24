@@ -16,28 +16,75 @@ interface SendMailParams {
   from?: string;
 }
 
-export async function sendEmail({ to, subject, html, text, from = SENDER_EMAIL }: SendMailParams): Promise<boolean> {
-  const smtpPassword = process.env.SMTP_PASSWORD;
-  const resendApiKey = process.env.RESEND_API_KEY;
+// Polyfill Uint8Array.prototype.toBase64 if absent in the runtime
+if (typeof Uint8Array !== 'undefined' && typeof (Uint8Array.prototype as any).toBase64 !== 'function') {
+  (Uint8Array.prototype as any).toBase64 = function () {
+    let binary = '';
+    const bytes = new Uint8Array(this.buffer, this.byteOffset, this.byteLength);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  };
+}
+
+async function getEmailConfig() {
+  let envObj: any = {};
+  try {
+    const cfContext = (globalThis as any)[Symbol.for('__cloudflare-context__')];
+    if (cfContext?.env) {
+      envObj = { ...envObj, ...cfContext.env };
+    }
+  } catch {}
+
+  try {
+    const { getCloudflareContext } = await import('@opennextjs/cloudflare');
+    const ctx: any = await getCloudflareContext({ async: true });
+    if (ctx?.env) {
+      envObj = { ...envObj, ...ctx.env };
+    }
+  } catch {}
+
+  const getVar = (key: string, defaultValue: string = ''): string => {
+    return envObj[key] || (typeof process !== 'undefined' && process.env?.[key]) || defaultValue;
+  };
+
+  return {
+    ownerEmail: getVar('OWNER_EMAIL', 'adil@bagofwords.tech'),
+    senderEmail: getVar('SENDER_EMAIL', 'noreply@bagofwords.tech'),
+    smtpHost: getVar('SMTP_HOST', 'smtp.larksuite.com'),
+    smtpPort: Number(getVar('SMTP_PORT', '465')),
+    smtpUser: getVar('SMTP_USER', getVar('SENDER_EMAIL', 'noreply@bagofwords.tech')),
+    smtpPassword: getVar('SMTP_PASSWORD', ''),
+    resendApiKey: getVar('RESEND_API_KEY', ''),
+    siteUrl: getVar('NEXT_PUBLIC_SITE_URL', 'https://bagofwords.tech'),
+  };
+}
+
+export async function sendEmail({ to, subject, html, text, from }: SendMailParams): Promise<boolean> {
+  const config = await getEmailConfig();
+  const senderAddress = from || config.senderEmail;
+  const recipients = Array.isArray(to) ? to : [to];
 
   // 1. Try Lark Suite SMTP (Port 465 SSL/TLS via Cloudflare Worker Sockets)
-  if (smtpPassword) {
+  if (config.smtpPassword) {
     try {
       const { WorkerMailer } = await import('worker-mailer');
-      const recipients = Array.isArray(to) ? to : [to];
 
       await WorkerMailer.send(
         {
-          host: process.env.SMTP_HOST || 'smtp.larksuite.com',
-          port: Number(process.env.SMTP_PORT) || 465,
+          host: config.smtpHost,
+          port: config.smtpPort,
           secure: true,
+          authType: ['login', 'plain'],
           credentials: {
-            username: process.env.SMTP_USER || SENDER_EMAIL,
-            password: smtpPassword,
+            username: config.smtpUser,
+            password: config.smtpPassword,
           },
         },
         {
-          from: { name: 'BagOfWords', email: from },
+          from: { name: 'BagOfWords', email: senderAddress },
           to: recipients,
           subject,
           html,
@@ -51,20 +98,22 @@ export async function sendEmail({ to, subject, html, text, from = SENDER_EMAIL }
       console.error('[Lark Suite SMTP Error]', smtpErr?.message || smtpErr);
       // Fall through to Resend or Mock if SMTP fails
     }
+  } else {
+    console.warn('[Lark Suite SMTP] SMTP_PASSWORD is not configured in environment or Cloudflare secrets.');
   }
 
   // 2. Try Resend HTTP API
-  if (resendApiKey) {
+  if (config.resendApiKey) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${resendApiKey}`,
+          Authorization: `Bearer ${config.resendApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: `BagOfWords <${from}>`,
-          to: Array.isArray(to) ? to : [to],
+          from: `BagOfWords <${senderAddress}>`,
+          to: recipients,
           subject,
           html,
           text,
@@ -87,9 +136,9 @@ export async function sendEmail({ to, subject, html, text, from = SENDER_EMAIL }
 
   // 3. Fallback: Mock logging for local development or when credentials are not configured
   console.log(`[Email Mock] Neither SMTP_PASSWORD nor RESEND_API_KEY configured. Simulated send:
-    To: ${Array.isArray(to) ? to.join(', ') : to}
+    To: ${recipients.join(', ')}
     Subject: ${subject}
-    From: ${from}`);
+    From: ${senderAddress}`);
   return true;
 }
 

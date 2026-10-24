@@ -38,9 +38,9 @@ export async function subscribeToNewsletter(prevState: any, formData: FormData) 
       };
     }
 
-    // Fire welcome email to subscriber & alert owner asynchronously
+    // Fire welcome email to subscriber & alert owner
     const name = email.split('@')[0];
-    Promise.all([
+    await Promise.all([
       sendWelcomeEmail(email, name),
       sendNewSubscriberAlert(email),
     ]).catch((err) => console.error('[Subscription Email Error]', err));
@@ -86,8 +86,8 @@ export async function submitContactForm(prevState: any, formData: FormData) {
       return { success: false, message: 'Failed to submit contact form. Please try again.' };
     }
 
-    // Send email alert to owner
-    sendContactNotification(name, email, message, id).catch((err) =>
+    // Send email alert to owner (must await so Cloudflare Worker does not exit early)
+    await sendContactNotification(name, email, message, id).catch((err) =>
       console.error('[Contact Form Notification Error]', err)
     );
 
