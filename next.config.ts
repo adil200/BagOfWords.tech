@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
     eslint: {
         ignoreDuringBuilds: true,
     },
+    webpack: (config, { isServer }) => {
+        if (isServer) {
+            config.externals = config.externals || [];
+            config.externals.push('cloudflare:sockets');
+        }
+        return config;
+    },
     images: {
         remotePatterns: [
             {
@@ -34,7 +41,7 @@ const nextConfig: NextConfig = {
         imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     },
     compiler: {
-        removeConsole: process.env.NODE_ENV === 'production',
+        removeConsole: false,
     },
     outputFileTracingIncludes: {
         '/*': ['./src/content/articles/**/*'],
@@ -45,4 +52,7 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
+// Only initialize remote dev proxy during local development (`next dev`)
+if (process.env.NODE_ENV === 'development') {
+    import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
+}

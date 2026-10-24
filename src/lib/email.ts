@@ -70,29 +70,20 @@ export async function sendEmail({ to, subject, html, text, from }: SendMailParam
   // 1. Try Lark Suite SMTP (Port 465 SSL/TLS via Cloudflare Worker Sockets)
   if (config.smtpPassword) {
     try {
-      const { WorkerMailer } = await import('worker-mailer');
+      const { sendLarkMail } = await import('./lark-smtp');
 
-      await WorkerMailer.send(
-        {
-          host: config.smtpHost,
-          port: config.smtpPort,
-          secure: true,
-          authType: ['login', 'plain'],
-          credentials: {
-            username: config.smtpUser,
-            password: config.smtpPassword,
-          },
-        },
-        {
-          from: { name: 'BagOfWords', email: senderAddress },
-          to: recipients,
-          subject,
-          html,
-          text,
-        }
-      );
+      await sendLarkMail({
+        host: config.smtpHost,
+        port: config.smtpPort,
+        username: config.smtpUser,
+        password: config.smtpPassword,
+        from: senderAddress,
+        to: recipients,
+        subject,
+        html,
+        text,
+      });
 
-      console.log(`[Lark Suite SMTP] Email sent successfully to: ${recipients.join(', ')}`);
       return true;
     } catch (smtpErr: any) {
       console.error('[Lark Suite SMTP Error]', smtpErr?.message || smtpErr);
