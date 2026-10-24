@@ -234,46 +234,87 @@ export async function generateArticleSummaryAction(articleContent: string): Prom
     return { error: 'Article content cannot be empty.' };
   }
 
-  const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+  const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
   const prompt = `Please provide a concise summary of the following article content. Focus on the main points and key information:
 
 ${articleContent}
 
 Summary:`;
 
-  const { GoogleGenerativeAI } = await import('@google/generative-ai');
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-
+  const apiKey = process.env.GOOGLE_API_KEY;
   let lastError: any = null;
 
-  for (const modelName of MODELS) {
-    try {
-      console.log(`[generateArticleSummaryAction] Trying model: ${modelName}`);
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const summary = response.text();
+  if (apiKey) {
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(apiKey);
 
-      if (summary && summary.trim()) {
-        console.log(`[generateArticleSummaryAction] Summary generated with ${modelName}, length:`, summary.length);
-        return { summary: summary.trim() };
-      } else {
-        lastError = new Error('Empty response from model.');
+    for (const modelName of MODELS) {
+      try {
+        console.log(`[generateArticleSummaryAction] Trying Gemini model: ${modelName}`);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const summary = response.text();
+
+        if (summary && summary.trim()) {
+          console.log(`[generateArticleSummaryAction] Summary generated with ${modelName}, length:`, summary.length);
+          return { summary: summary.trim() };
+        } else {
+          lastError = new Error('Empty response from model.');
+        }
+      } catch (err: any) {
+        lastError = err;
+        const isLocationError = err.message?.includes('User location is not supported');
+        const is503 =
+          err.message?.includes('503') ||
+          err.message?.includes('Service Unavailable') ||
+          err.message?.includes('high demand');
+        console.warn(`[generateArticleSummaryAction] Model ${modelName} failed${is503 ? ' (503 – retrying with fallback)' : ''}:`, err.message);
+        if (isLocationError) {
+          // Location geoblock by Google on this Cloudflare edge IP; skip other Gemini models and try Cloudflare Workers AI
+          break;
+        }
+        if (!is503) break;
       }
-    } catch (err: any) {
-      lastError = err;
-      const is503 =
-        err.message?.includes('503') ||
-        err.message?.includes('Service Unavailable') ||
-        err.message?.includes('high demand');
-      console.warn(`[generateArticleSummaryAction] Model ${modelName} failed${is503 ? ' (503 – retrying with fallback)' : ''}:`, err.message);
-      if (!is503) break;
     }
+  } else {
+    lastError = new Error('GOOGLE_API_KEY is not configured in environment variables.');
   }
 
-  console.error('[generateArticleSummaryAction] All models failed:', lastError);
+  // Fallback: Cloudflare Workers AI (runs directly on Cloudflare edge GPUs, no Google IP geo-block)
+  try {
+    const cfContext = (globalThis as any)[Symbol.for('__cloudflare-context__')];
+    let aiBinding = cfContext?.env?.AI;
+
+    if (!aiBinding) {
+      try {
+        const { getCloudflareContext } = await import('@opennextjs/cloudflare');
+        const ctx = await getCloudflareContext({ async: true });
+        aiBinding = (ctx?.env as any)?.AI;
+      } catch {}
+    }
+
+    if (aiBinding && typeof aiBinding.run === 'function') {
+      console.log('[generateArticleSummaryAction] Falling back to Cloudflare Workers AI (@cf/meta/llama-3.1-8b-instruct)...');
+      const aiRes: any = await aiBinding.run('@cf/meta/llama-3.1-8b-instruct', {
+        prompt: `Please provide a concise summary of the following article content. Focus on the main points and key information:\n\n${articleContent}\n\nSummary:`,
+        max_tokens: 500,
+      });
+      const cfSummary = aiRes?.response?.trim();
+      if (cfSummary) {
+        console.log('[generateArticleSummaryAction] Summary successfully generated via Cloudflare Workers AI');
+        return { summary: cfSummary };
+      }
+    }
+  } catch (cfAiErr: any) {
+    console.warn('[generateArticleSummaryAction] Cloudflare Workers AI fallback failed:', cfAiErr.message);
+  }
+
+  console.error('[generateArticleSummaryAction] All summary generation methods failed:', lastError);
   let errorMessage = 'An error occurred while generating the summary.';
-  if (lastError?.message) {
+  if (lastError?.message?.includes('User location is not supported')) {
+    errorMessage = 'Google Gemini API blocked this server location ("User location is not supported for the API use"). Cloudflare Workers Smart Placement has been configured to route requests through supported regions.';
+  } else if (lastError?.message) {
     errorMessage += ` Details: ${lastError.message}`;
   }
   return { error: errorMessage };

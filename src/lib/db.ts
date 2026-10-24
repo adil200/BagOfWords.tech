@@ -19,17 +19,48 @@ const localStore = {
   comments: [] as any[],
 };
 
+async function getD1Database(): Promise<any> {
+  // 1. Try globalThis[Symbol.for('__cloudflare-context__')] (OpenNext Cloudflare runtime)
+  try {
+    const cfContext = (globalThis as any)[Symbol.for('__cloudflare-context__')];
+    if (cfContext?.env?.DB && typeof cfContext.env.DB.prepare === 'function') {
+      return cfContext.env.DB;
+    }
+  } catch {}
+
+  // 2. Try getCloudflareContext from @opennextjs/cloudflare
+  try {
+    const { getCloudflareContext } = await import('@opennextjs/cloudflare');
+    const ctx: any = await getCloudflareContext({ async: true });
+    const db = ctx?.env?.DB;
+    if (db && typeof db.prepare === 'function') {
+      return db;
+    }
+  } catch {}
+
+  // 3. Try process.env.DB or globalThis.DB
+  try {
+    if (typeof process !== 'undefined' && (process.env as any)?.DB && typeof (process.env as any).DB.prepare === 'function') {
+      return (process.env as any).DB;
+    }
+    if ((globalThis as any).DB && typeof (globalThis as any).DB.prepare === 'function') {
+      return (globalThis as any).DB;
+    }
+  } catch {}
+
+  return null;
+}
+
 export async function executeD1Query<T = any>(sql: string, params: any[] = []): Promise<D1QueryResult<T>> {
   // 1. Try Cloudflare Worker / Pages Native D1 Binding
-  // @ts-ignore
-  const nativeDb = (typeof process !== 'undefined' && process.env?.DB) || (globalThis as any).DB;
+  const nativeDb = await getD1Database();
   if (nativeDb && typeof nativeDb.prepare === 'function') {
     try {
       const stmt = nativeDb.prepare(sql).bind(...params);
       const isSelect = sql.trim().toUpperCase().startsWith('SELECT');
       if (isSelect) {
         const res = await stmt.all();
-        return { results: res.results as T[], success: true };
+        return { results: (res.results || []) as T[], success: true };
       } else {
         const res = await stmt.run();
         return { results: [], success: res.success !== false };

@@ -17,6 +17,12 @@
 			"database_id": "5a905458-14cd-4ead-b5cd-9e30a7158c34"
 		}
 	],
+	"ai": {
+		"binding": "AI"
+	},
+	"placement": {
+		"mode": "smart"
+	},
 	"services": [
 		{
 			"binding": "WORKER_SELF_REFERENCE",
