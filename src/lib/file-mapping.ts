@@ -32,9 +32,10 @@ export const ASSET_MAPPING: Record<string, string> = {
   'diffusion.webp': 'diffusion.webp',
   'diffusion.png': 'diffusion.webp',
   'diffusion': 'diffusion.webp',
+  'PyRegExp.jpg': 'PyRegExp.jpg',
   'PyRegExp.webp': 'PyRegExp.webp',
-  'PyRegExp.png': 'PyRegExp.webp',
-  'PyRegExp': 'PyRegExp.webp',
+  'PyRegExp.png': 'PyRegExp.jpg',
+  'PyRegExp': 'PyRegExp.jpg',
   'Generated Image November 08, 2025 - 4_33PM (1).png': 'Generated Image November 08, 2025 - 4_33PM (1).png',
 
   // Imagen 3 Tutorial Screenshots
