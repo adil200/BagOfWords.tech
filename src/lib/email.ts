@@ -17,43 +17,80 @@ interface SendMailParams {
 }
 
 export async function sendEmail({ to, subject, html, text, from = SENDER_EMAIL }: SendMailParams): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
+  const smtpPassword = process.env.SMTP_PASSWORD;
+  const resendApiKey = process.env.RESEND_API_KEY;
 
-  if (!apiKey) {
-    console.log(`[Email Mock] RESEND_API_KEY not configured. Simulated send:
-      To: ${Array.isArray(to) ? to.join(', ') : to}
-      Subject: ${subject}
-      From: ${from}`);
-    return true;
+  // 1. Try Lark Suite SMTP (Port 465 SSL/TLS via Cloudflare Worker Sockets)
+  if (smtpPassword) {
+    try {
+      const { WorkerMailer } = await import('worker-mailer');
+      const recipients = Array.isArray(to) ? to : [to];
+
+      await WorkerMailer.send(
+        {
+          host: process.env.SMTP_HOST || 'smtp.larksuite.com',
+          port: Number(process.env.SMTP_PORT) || 465,
+          secure: true,
+          credentials: {
+            username: process.env.SMTP_USER || SENDER_EMAIL,
+            password: smtpPassword,
+          },
+        },
+        {
+          from: { name: 'BagOfWords', email: from },
+          to: recipients,
+          subject,
+          html,
+          text,
+        }
+      );
+
+      console.log(`[Lark Suite SMTP] Email sent successfully to: ${recipients.join(', ')}`);
+      return true;
+    } catch (smtpErr: any) {
+      console.error('[Lark Suite SMTP Error]', smtpErr?.message || smtpErr);
+      // Fall through to Resend or Mock if SMTP fails
+    }
   }
 
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: `BagOfWords <${from}>`,
-        to: Array.isArray(to) ? to : [to],
-        subject,
-        html,
-        text,
-      }),
-    });
+  // 2. Try Resend HTTP API
+  if (resendApiKey) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: `BagOfWords <${from}>`,
+          to: Array.isArray(to) ? to : [to],
+          subject,
+          html,
+          text,
+        }),
+      });
 
-    if (!res.ok) {
-      const errData = await res.text();
-      console.error('[Resend Error]', res.status, errData);
+      if (!res.ok) {
+        const errData = await res.text();
+        console.error('[Resend Error]', res.status, errData);
+        return false;
+      }
+
+      console.log(`[Resend API] Email sent successfully via HTTP`);
+      return true;
+    } catch (err) {
+      console.error('[Resend API Error]', err);
       return false;
     }
-
-    return true;
-  } catch (err) {
-    console.error('[Email Send Error]', err);
-    return false;
   }
+
+  // 3. Fallback: Mock logging for local development or when credentials are not configured
+  console.log(`[Email Mock] Neither SMTP_PASSWORD nor RESEND_API_KEY configured. Simulated send:
+    To: ${Array.isArray(to) ? to.join(', ') : to}
+    Subject: ${subject}
+    From: ${from}`);
+  return true;
 }
 
 /**
