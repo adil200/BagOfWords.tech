@@ -1,14 +1,17 @@
-import type { MetadataRoute } from 'next'
- 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+import type { MetadataRoute } from 'next';
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://BagOfWords.tech';
+
+/**
+ * Generates the robots.txt metadata configuration for search engine crawlers.
+ */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      // disallow: '/private/', // Example: disallow private pages
     },
     sitemap: `${BASE_URL}/sitemap.xml`,
-  }
+  };
 }
+

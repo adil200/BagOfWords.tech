@@ -13,6 +13,9 @@ declare global {
   }
 }
 
+/**
+ * Floating support popover allowing readers to contribute via Razorpay with confetti feedback.
+ */
 export function FloatingSupport() {
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState('100');
@@ -47,7 +50,6 @@ export function FloatingSupport() {
 
   const handleClose = () => {
     setIsOpen(false);
-    // Reset after close animation completes
     setTimeout(() => {
       setIsSuccess(false);
       setAmount('100');
@@ -93,7 +95,7 @@ export function FloatingSupport() {
         description: 'Support the author',
         order_id: orderId,
         notes: {
-          message: message || "No message provided",
+          message: message || 'No message provided',
         },
         handler: () => {
           setIsSuccess(true);
@@ -122,7 +124,6 @@ export function FloatingSupport() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
-      {/* The Popover */}
       <div
         className={`mb-4 transition-all duration-300 origin-bottom-right ${
           isOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-0 opacity-0'
@@ -136,10 +137,8 @@ export function FloatingSupport() {
             <X size={16} />
           </button>
 
-          {/* Success State */}
           {isSuccess ? (
             <div className="flex flex-col items-center text-center space-y-4 py-4">
-              {/* Animated icon */}
               <div className="relative">
                 <div className="absolute inset-0 bg-accent/20 rounded-full animate-ping" />
                 <div className="relative bg-accent/10 p-4 rounded-full text-accent">
@@ -159,7 +158,6 @@ export function FloatingSupport() {
               </Button>
             </div>
           ) : (
-            /* Normal State */
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="bg-primary/10 p-3 rounded-full text-primary">
                 <Coffee size={24} />
@@ -169,7 +167,6 @@ export function FloatingSupport() {
                 If you find these articles helpful, consider buying me a coffee!
               </p>
 
-              {/* Amount Presets */}
               <div className="flex gap-2 w-full pt-2">
                 {['100', '250', '400'].map((preset) => (
                   <Button
@@ -184,20 +181,21 @@ export function FloatingSupport() {
                 ))}
               </div>
 
-              {/* Custom Amount */}
               <div className="relative w-full mt-2">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
                 <Input
                   type="number"
                   value={amount}
-                  onChange={(e) => { setAmount(e.target.value); setError(''); }}
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    setError('');
+                  }}
                   onWheel={(e) => e.currentTarget.blur()}
                   className="pl-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min="1"
                 />
               </div>
 
-              {/* Optional Message */}
               <div className="w-full mt-2">
                 <Input
                   type="text"
@@ -211,7 +209,6 @@ export function FloatingSupport() {
 
               {error && <p className="text-xs text-destructive">{error}</p>}
 
-              {/* Submit */}
               <Button
                 className="w-full mt-2"
                 size="lg"
@@ -219,7 +216,9 @@ export function FloatingSupport() {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <><Loader2 size={16} className="mr-2 animate-spin" /> Processing...</>
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" /> Processing...
+                  </>
                 ) : (
                   <>Support ₹{amount}</>
                 )}
@@ -227,13 +226,13 @@ export function FloatingSupport() {
               <p className="text-[10px] text-muted-foreground pt-1 flex items-center justify-center gap-1">
                 Payments are securely processed by
                 <span className="flex items-center gap-1 font-medium text-foreground">
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    fill="currentColor" 
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
                     className="h-3 w-3 text-[#3395FF]"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path d="M22.436 0l-11.91 7.773-1.174 4.276 6.625-4.297L11.65 24h4.391l6.395-24zM14.26 10.098L3.389 17.166 1.564 24h9.008l3.688-13.902Z"/>
+                    <path d="M22.436 0l-11.91 7.773-1.174 4.276 6.625-4.297L11.65 24h4.391l6.395-24zM14.26 10.098L3.389 17.166 1.564 24h9.008l3.688-13.902Z" />
                   </svg>
                   Razorpay
                 </span>
@@ -243,7 +242,6 @@ export function FloatingSupport() {
         </div>
       </div>
 
-      {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="h-14 w-14 rounded-full bg-card border border-border shadow-xl flex items-center justify-center hover:bg-accent/10 hover:border-accent/50 hover:scale-105 transition-all text-accent pointer-events-auto"
@@ -254,3 +252,4 @@ export function FloatingSupport() {
     </div>
   );
 }
+

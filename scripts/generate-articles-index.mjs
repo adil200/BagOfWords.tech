@@ -5,9 +5,12 @@ import matter from 'gray-matter';
 const articlesDirectory = path.join(process.cwd(), 'src/content/articles');
 const outputFile = path.join(process.cwd(), 'src/lib/articles-index.json');
 
+/**
+ * Parses markdown frontmatter and content to generate a static articles index JSON file.
+ */
 function generateIndex() {
   console.log('Generating articles index...');
-  
+
   if (!fs.existsSync(articlesDirectory)) {
     console.warn('Articles directory not found. Skipping index generation.');
     fs.writeFileSync(outputFile, JSON.stringify([], null, 2));
@@ -21,10 +24,10 @@ function generateIndex() {
       const fullPath = path.join(articlesDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, 'utf8');
       const { data, content } = matter(fileContents);
-      
+
       const publishDate = data.publishDate || new Date().toISOString();
       const slug = data.slug || fileName.replace(/\.mdx$/, '');
-      
+
       return {
         $id: slug,
         $createdAt: publishDate,
@@ -52,9 +55,7 @@ function generateIndex() {
       };
     });
 
-
   articles.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
-
   fs.writeFileSync(outputFile, JSON.stringify(articles, null, 2));
 }
 

@@ -1,34 +1,36 @@
 'use client';
 
+import type { FormEvent } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, RotateCcw } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import Link from 'next/link';
 
 interface ArticleFiltersProps {
   categories: Array<{ slug: string; name: string }>;
   currentView: 'grid' | 'list';
 }
 
+/**
+ * Filter controls for the articles archive allowing category filtering, sorting, and search querying.
+ */
 export function ArticleFilters({ categories, currentView }: ArticleFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const updateFilters = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    
+
     if (value && value !== 'all') {
       params.set(key, value);
     } else {
       params.delete(key);
     }
-    
-    // Reset to page 1 when filters change
+
     params.delete('page');
-    
     router.push(`/articles?${params.toString()}`);
   };
 
@@ -40,7 +42,7 @@ export function ArticleFilters({ categories, currentView }: ArticleFiltersProps)
     updateFilters('sortBy', value);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const query = formData.get('query') as string;
@@ -53,32 +55,30 @@ export function ArticleFilters({ categories, currentView }: ArticleFiltersProps)
 
   return (
     <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
-      {/* Category Select - Order 1 */}
       <div className="lg:col-span-1">
-        <Label htmlFor="category-select" className="block text-sm font-medium text-muted-foreground mb-1">Category</Label>
-        <Select
-          value={currentCategory}
-          onValueChange={handleCategoryChange}
-        >
+        <Label htmlFor="category-select" className="block text-sm font-medium text-muted-foreground mb-1">
+          Category
+        </Label>
+        <Select value={currentCategory} onValueChange={handleCategoryChange}>
           <SelectTrigger id="category-select">
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {categories.map(cat => (
-              <SelectItem key={cat.slug} value={cat.slug}>{cat.name}</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat.slug} value={cat.slug}>
+                {cat.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Sort By Select - Order 2 */}
       <div className="lg:col-span-1">
-        <Label htmlFor="sort-select" className="block text-sm font-medium text-muted-foreground mb-1">Sort By</Label>
-        <Select
-          value={currentSort}
-          onValueChange={handleSortChange}
-        >
+        <Label htmlFor="sort-select" className="block text-sm font-medium text-muted-foreground mb-1">
+          Sort By
+        </Label>
+        <Select value={currentSort} onValueChange={handleSortChange}>
           <SelectTrigger id="sort-select">
             <SelectValue placeholder="Sort articles" />
           </SelectTrigger>
@@ -90,21 +90,22 @@ export function ArticleFilters({ categories, currentView }: ArticleFiltersProps)
         </Select>
       </div>
 
-      {/* Search Input + Button Unit - Order 3 */}
       <div className="md:col-span-3 lg:col-span-2">
-        <Label htmlFor="query-input" className="block text-sm font-medium text-muted-foreground mb-1">Search Articles</Label>
+        <Label htmlFor="query-input" className="block text-sm font-medium text-muted-foreground mb-1">
+          Search Articles
+        </Label>
         <div className="flex items-center gap-2">
-          <Input 
-            name="query" 
-            id="query-input" 
-            placeholder="Keywords, titles..." 
-            className="flex-grow" 
+          <Input
+            name="query"
+            id="query-input"
+            placeholder="Keywords, titles..."
+            className="flex-grow"
             defaultValue={currentQuery}
           />
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="icon" 
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
             aria-label="Reset filters"
             asChild
           >
@@ -120,3 +121,4 @@ export function ArticleFilters({ categories, currentView }: ArticleFiltersProps)
     </form>
   );
 }
+

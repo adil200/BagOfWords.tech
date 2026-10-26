@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -14,23 +13,26 @@ interface ArticleSummaryGeneratorProps {
   articleTitle: string;
 }
 
+/**
+ * Builds a sanitized localStorage cache key for an article summary.
+ */
 function makeCacheKey(title: string) {
   return `article_summary_v1_${title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}`;
 }
 
+/**
+ * Interactive card component that generates, caches, and renders AI summaries for an article.
+ */
 export function ArticleSummaryGenerator({ articleContent, articleTitle }: ArticleSummaryGeneratorProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fromCache, setFromCache] = useState(false);
-  // Stays false until after the localStorage check — prevents the "generate" flash
   const [isInitialized, setIsInitialized] = useState(false);
   const { toast } = useToast();
 
   const cacheKey = makeCacheKey(articleTitle);
 
-  // Run synchronously after mount. localStorage is fast (~1ms), so the skeleton
-  // is imperceptible. This is the production-grade approach to avoid hydration mismatches.
   useEffect(() => {
     try {
       const cached = localStorage.getItem(cacheKey);
@@ -39,7 +41,7 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
         setFromCache(true);
       }
     } catch {
-      // localStorage unavailable (private browsing, etc.)
+      // Storage unavailable fallback
     }
     setIsInitialized(true);
   }, [cacheKey]);
@@ -56,9 +58,7 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
         setSummary(result.summary);
         try {
           localStorage.setItem(cacheKey, result.summary);
-        } catch {
-          // storage quota exceeded or blocked
-        }
+        } catch {}
         toast({ title: 'Summary Generated!', description: 'The AI-powered summary is ready.' });
       } else {
         setError(result.error || 'Failed to generate summary.');
@@ -83,7 +83,8 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
 
   const handleCopyToClipboard = () => {
     if (summary) {
-      navigator.clipboard.writeText(summary)
+      navigator.clipboard
+        .writeText(summary)
         .then(() => toast({ title: 'Copied!', description: 'Summary copied to clipboard.' }))
         .catch(() => toast({ title: 'Copy Failed', variant: 'destructive' }));
     }
@@ -98,13 +99,10 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
         </CardTitle>
       </CardHeader>
       <CardContent>
-
-        {/* Neutral skeleton shown during the localStorage check to avoid flash */}
         {!isInitialized && (
           <div className="h-16 rounded-md bg-muted/40 animate-pulse" />
         )}
 
-        {/* Initial state — not cached, not loading, no error */}
         {isInitialized && !summary && !isLoading && !error && (
           <div className="text-center py-2">
             <p className="text-muted-foreground mb-4 text-sm">
@@ -120,7 +118,6 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
           </div>
         )}
 
-        {/* Loading */}
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-6">
             <Loader2 className="h-8 w-8 animate-spin text-accent mb-3" />
@@ -128,7 +125,6 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
           </div>
         )}
 
-        {/* Error */}
         {error && !isLoading && (
           <div className="text-red-500/90 bg-red-500/10 p-4 rounded-md flex items-start">
             <AlertTriangle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0 text-red-500" />
@@ -142,7 +138,6 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
           </div>
         )}
 
-        {/* Summary — from cache or freshly generated */}
         {isInitialized && summary && !isLoading && !error && (
           <div>
             <div className="flex justify-between items-center mb-2">
@@ -159,7 +154,6 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
               </Button>
             </div>
 
-            {/* Scrollable content area */}
             <div className="max-h-64 overflow-y-auto rounded-md border bg-muted/30 p-4">
               <div
                 className="text-foreground/90 leading-relaxed text-sm prose prose-sm dark:prose-invert max-w-none"
@@ -167,7 +161,6 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
               />
             </div>
 
-            {/* Only show Regenerate when freshly generated (not when reading from cache) */}
             {!fromCache && (
               <div className="text-center mt-4">
                 <Button onClick={handleGenerateSummary} variant="outline" size="sm" disabled={isLoading}>
@@ -178,7 +171,6 @@ export function ArticleSummaryGenerator({ articleContent, articleTitle }: Articl
             )}
           </div>
         )}
-
       </CardContent>
     </Card>
   );

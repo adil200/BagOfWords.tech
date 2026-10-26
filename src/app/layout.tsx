@@ -1,25 +1,26 @@
-
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Toaster } from "@/components/ui/toaster";
-import Script from 'next/script';
+import { Toaster } from '@/components/ui/toaster';
 import GTagEvents from '@/components/layout/GTagEvents';
 import { GA_TRACKING_ID } from '@/lib/gtag';
-import { FloatingSupport } from '@/components/ui/FloatingSupport';
+import { FloatingSupport } from '@/components/support/FloatingSupport';
 
 export const metadata: Metadata = {
   title: 'BagOfWords',
   description: 'Your Guide to Understanding and Applying AI, ML, and NLP.',
   icons: {
     icon: '/BagOfWords.svg',
-  }
+  },
 };
 
-
+/**
+ * Root HTML layout wrapping the application with navigation, analytics, toaster, and support widget.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,16 +28,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} dark scroll-smooth`}>
-    <head>
-      <link rel="icon" type="image/svg+xml" href="/BagOfWords.svg" />
-      <script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6964891412733844"
-        crossOrigin="anonymous"
-      ></script>
-    </head>
-      <body className={`antialiased flex flex-col min-h-screen`}>
-        {/* Google Analytics Scripts */}
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/BagOfWords.svg" />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6964891412733844"
+          crossOrigin="anonymous"
+        />
+      </head>
+      <body className="antialiased flex flex-col min-h-screen">
         {GA_TRACKING_ID && (
           <>
             <Script
@@ -65,13 +65,11 @@ export default function RootLayout({
         </main>
         <Footer />
         <Toaster />
-        <GTagEvents /> {/* Component to handle route changes for GA */}
-        {/* Simple Analytics Script - Added back */}
+        <GTagEvents />
         <Script async src="https://scripts.simpleanalyticscdn.com/latest.js" strategy="afterInteractive" />
-        
-        {/* Floating Support Button */}
         <FloatingSupport />
       </body>
     </html>
   );
 }
+

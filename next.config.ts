@@ -47,12 +47,20 @@ const nextConfig: NextConfig = {
         '/*': ['./src/content/articles/**/*'],
         '/articles': ['./src/content/articles/**/*'],
         '/articles/[slug]': ['./src/content/articles/**/*']
+    },
+    async redirects() {
+        return [
+            {
+                source: '/terms-of-service',
+                destination: '/terms-and-conditions',
+                permanent: true,
+            },
+        ];
     }
 };
 
 export default nextConfig;
 
-// Only initialize remote dev proxy during local development (`next dev`)
 if (process.env.NODE_ENV === 'development') {
     import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
 }

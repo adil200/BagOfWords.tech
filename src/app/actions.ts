@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Comment } from '@/types';
 
 /**
- * 1. Subscribe to Newsletter (Cloudflare D1 + Instant Email)
+ * Subscribes a user to the newsletter via Cloudflare D1 and sends a welcome email.
  */
 export async function subscribeToNewsletter(prevState: any, formData: FormData) {
   try {
@@ -16,7 +16,6 @@ export async function subscribeToNewsletter(prevState: any, formData: FormData) 
       return { success: false, message: 'Email is required' };
     }
 
-    // Check if email already exists in newsletter table
     const checkRes = await executeD1Query('SELECT id FROM newsletter WHERE email = ?', [email]);
     if (checkRes.success && checkRes.results.length > 0) {
       return {
@@ -38,7 +37,6 @@ export async function subscribeToNewsletter(prevState: any, formData: FormData) 
       };
     }
 
-    // Fire welcome email to subscriber & alert owner
     const name = email.split('@')[0];
     await Promise.all([
       sendWelcomeEmail(email, name),
@@ -58,13 +56,15 @@ export async function subscribeToNewsletter(prevState: any, formData: FormData) 
   }
 }
 
-/** Backward compatibility alias */
+/**
+ * Backward compatibility alias for subscribeToNewsletter.
+ */
 export async function subscribeToNewsletter1(prevState: any, formData: FormData) {
   return subscribeToNewsletter(prevState, formData);
 }
 
 /**
- * 2. Submit Contact Form (Cloudflare D1 + Email Notification)
+ * Submits a contact form submission to Cloudflare D1 and triggers email notification.
  */
 export async function submitContactForm(prevState: any, formData: FormData) {
   try {
@@ -86,7 +86,6 @@ export async function submitContactForm(prevState: any, formData: FormData) {
       return { success: false, message: 'Failed to submit contact form. Please try again.' };
     }
 
-    // Send email alert to owner (must await so Cloudflare Worker does not exit early)
     await sendContactNotification(name, email, message, id).catch((err) =>
       console.error('[Contact Form Notification Error]', err)
     );
@@ -99,7 +98,7 @@ export async function submitContactForm(prevState: any, formData: FormData) {
 }
 
 /**
- * 3. Add Comment to Cloudflare D1
+ * Inserts a new comment into the Cloudflare D1 comments table.
  */
 export async function addCommentToAppwrite(
   articleSlug: string,
@@ -129,7 +128,7 @@ export async function addCommentToAppwrite(
 }
 
 /**
- * 4. Fetch Comments from Cloudflare D1 (Organized as Threaded Tree)
+ * Fetches all comments for an article and builds a hierarchical threaded comment tree.
  */
 export async function getCommentsFromAppwrite(articleSlug: string): Promise<Comment[]> {
   try {
@@ -157,7 +156,6 @@ export async function getCommentsFromAppwrite(articleSlug: string): Promise<Comm
       replies: [],
     }));
 
-    // Organize comments into parent/child threads
     const commentMap = new Map<string, Comment>();
     const rootComments: Comment[] = [];
 
@@ -185,7 +183,7 @@ export async function getCommentsFromAppwrite(articleSlug: string): Promise<Comm
 }
 
 /**
- * 5. Upvote a Comment
+ * Increments upvote count for a comment in Cloudflare D1.
  */
 export async function upvoteComment(commentId: string) {
   try {
@@ -206,7 +204,7 @@ export async function upvoteComment(commentId: string) {
 }
 
 /**
- * 6. Downvote a Comment
+ * Increments downvote count for a comment in Cloudflare D1.
  */
 export async function downvoteComment(commentId: string) {
   try {
@@ -227,7 +225,7 @@ export async function downvoteComment(commentId: string) {
 }
 
 /**
- * 7. Generate Article Summary using Gemini
+ * Generates an article summary using Google Gemini models with Cloudflare Workers AI fallback.
  */
 export async function generateArticleSummaryAction(articleContent: string): Promise<{ summary?: string; error?: string }> {
   if (!articleContent.trim()) {
@@ -235,11 +233,7 @@ export async function generateArticleSummaryAction(articleContent: string): Prom
   }
 
   const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
-  const prompt = `Please provide a concise summary of the following article content. Focus on the main points and key information:
-
-${articleContent}
-
-Summary:`;
+  const prompt = `Please provide a concise summary of the following article content. Focus on the main points and key information:\n\n${articleContent}\n\nSummary:`;
 
   const apiKey = process.env.GOOGLE_API_KEY;
   let lastError: any = null;
@@ -271,7 +265,6 @@ Summary:`;
           err.message?.includes('high demand');
         console.warn(`[generateArticleSummaryAction] Model ${modelName} failed${is503 ? ' (503 – retrying with fallback)' : ''}:`, err.message);
         if (isLocationError) {
-          // Location geoblock by Google on this Cloudflare edge IP; skip other Gemini models and try Cloudflare Workers AI
           break;
         }
         if (!is503) break;
@@ -281,7 +274,6 @@ Summary:`;
     lastError = new Error('GOOGLE_API_KEY is not configured in environment variables.');
   }
 
-  // Fallback: Cloudflare Workers AI (runs directly on Cloudflare edge GPUs, no Google IP geo-block)
   try {
     const cfContext = (globalThis as any)[Symbol.for('__cloudflare-context__')];
     let aiBinding = cfContext?.env?.AI;
@@ -319,3 +311,4 @@ Summary:`;
   }
   return { error: errorMessage };
 }
+

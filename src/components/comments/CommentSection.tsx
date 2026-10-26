@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, FormEvent, useCallback } from 'react';
@@ -7,7 +6,7 @@ import { addCommentToAppwrite, getCommentsFromAppwrite, upvoteComment, downvoteC
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ThumbsUp, ThumbsDown, MessageSquare, Send, Loader2, X } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MessageSquare, Send, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '../ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -20,12 +19,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
 import { getR2AssetUrl } from '@/lib/file-mapping';
 
-interface LocalAuthor { id: string; name: string; avatarUrl?: string; isAuthor?: boolean; }
+interface LocalAuthor {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  isAuthor?: boolean;
+}
 
-// Author profile - Adil Naib
 const getAuthorProfile = (): LocalAuthor => ({
   id: 'author-1',
   name: 'Adil Naib',
@@ -33,7 +35,6 @@ const getAuthorProfile = (): LocalAuthor => ({
   isAuthor: true,
 });
 
-// Generate random anonymous user with bot icon
 const getRandomAnonymousUser = (): LocalAuthor => {
   const botVariants = [
     { name: 'Anonymous Reader', icon: '/bot-icon.svg', color: 'Cyan' },
@@ -67,26 +68,28 @@ interface CommentItemProps {
   isReplyFormOpen: (commentId: string) => boolean;
 }
 
-function CommentItem({ comment, onReplyToggle, articleSlug, currentUser, refreshComments, isReplyFormOpen }: CommentItemProps) {
+function CommentItem({
+  comment,
+  onReplyToggle,
+  articleSlug,
+  currentUser,
+  refreshComments,
+  isReplyFormOpen,
+}: CommentItemProps) {
   const showReplyForm = isReplyFormOpen(comment.id);
   const { toast } = useToast();
   const [isVoting, setIsVoting] = useState<'up' | 'down' | null>(null);
 
   const handleVote = async (commentId: string, type: 'up' | 'down') => {
     setIsVoting(type);
-    let result;
-    if (type === 'up') {
-      result = await upvoteComment(commentId);
-    } else {
-      result = await downvoteComment(commentId);
-    }
+    const result = type === 'up' ? await upvoteComment(commentId) : await downvoteComment(commentId);
     setIsVoting(null);
 
     if (result.success) {
-      toast({ title: "Success", description: result.message });
+      toast({ title: 'Success', description: result.message });
       refreshComments();
     } else {
-      toast({ title: "Error", description: result.message, variant: "destructive" });
+      toast({ title: 'Error', description: result.message, variant: 'destructive' });
     }
   };
 
@@ -95,7 +98,9 @@ function CommentItem({ comment, onReplyToggle, articleSlug, currentUser, refresh
       <CardContent className="p-4">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10 flex-shrink-0">
-            {comment.author.avatarUrl && <AvatarImage src={comment.author.avatarUrl} alt={comment.author.name} className="object-cover" />}
+            {comment.author.avatarUrl && (
+              <AvatarImage src={comment.author.avatarUrl} alt={comment.author.name} className="object-cover" />
+            )}
             <AvatarFallback>{comment.author.name.substring(0, 1).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
@@ -134,7 +139,13 @@ function CommentItem({ comment, onReplyToggle, articleSlug, currentUser, refresh
                 {isVoting === 'down' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsDown className="h-4 w-4" />}
                 {comment.downvotes}
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => onReplyToggle(comment.id)} className="flex items-center gap-1 px-2" disabled={!!isVoting}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onReplyToggle(comment.id)}
+                className="flex items-center gap-1 px-2"
+                disabled={!!isVoting}
+              >
                 <MessageSquare className="h-4 w-4" /> Reply
               </Button>
             </div>
@@ -155,7 +166,7 @@ function CommentItem({ comment, onReplyToggle, articleSlug, currentUser, refresh
         )}
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-3">
-            {comment.replies.map(reply => (
+            {comment.replies.map((reply) => (
               <CommentItem
                 key={reply.id}
                 comment={reply}
@@ -188,7 +199,7 @@ function CommentForm({ articleSlug, parentId, currentUser, onCommentAdded }: Com
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!content.trim()) {
-      toast({ title: "Error", description: "Comment cannot be empty.", variant: "destructive" });
+      toast({ title: 'Error', description: 'Comment cannot be empty.', variant: 'destructive' });
       return;
     }
     setIsSubmitting(true);
@@ -204,11 +215,11 @@ function CommentForm({ articleSlug, parentId, currentUser, onCommentAdded }: Com
 
     setIsSubmitting(false);
     if (result.success) {
-      toast({ title: "Success", description: parentId ? "Reply posted!" : "Comment posted!" });
+      toast({ title: 'Success', description: parentId ? 'Reply posted!' : 'Comment posted!' });
       setContent('');
       onCommentAdded();
     } else {
-      toast({ title: "Error", description: result.message, variant: "destructive" });
+      toast({ title: 'Error', description: result.message, variant: 'destructive' });
     }
   };
 
@@ -217,15 +228,19 @@ function CommentForm({ articleSlug, parentId, currentUser, onCommentAdded }: Com
       <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder={parentId ? "Write a reply..." : "Leave a comment..."}
+        placeholder={parentId ? 'Write a reply...' : 'Leave a comment...'}
         rows={3}
         className="bg-background focus:border-accent"
         disabled={isSubmitting}
       />
       <div className="flex justify-end">
-        <Button type="submit" disabled={!content.trim() || isSubmitting} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button
+          type="submit"
+          disabled={!content.trim() || isSubmitting}
+          className="bg-accent hover:bg-accent/90 text-accent-foreground"
+        >
           {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-          {isSubmitting ? (parentId ? "Posting Reply..." : "Posting Comment...") : (parentId ? "Post Reply" : "Post Comment")}
+          {isSubmitting ? (parentId ? 'Posting Reply...' : 'Posting Comment...') : parentId ? 'Post Reply' : 'Post Comment'}
         </Button>
       </div>
     </form>
@@ -236,15 +251,17 @@ interface CommentSectionProps {
   articleSlug: string;
 }
 
+/**
+ * Threaded discussion section with author authentication shortcut and Cloudflare D1 persistence.
+ */
 export function CommentSection({ articleSlug }: CommentSectionProps) {
   const [comments, setComments] = useState<CommentType[]>([]);
   const [openReplyFormId, setOpenReplyFormId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<LocalAuthor>(() => {
-    // Check if user is admin/author on initial load
     if (typeof window !== 'undefined') {
       const isAuthorSession = sessionStorage.getItem('isAuthor') === 'true';
-      const isAdminSession = sessionStorage.getItem('isAdmin') === 'true'; // Changed from 'isAdminAuthenticated'
+      const isAdminSession = sessionStorage.getItem('isAdmin') === 'true';
       if (isAuthorSession || isAdminSession) {
         return getAuthorProfile();
       }
@@ -256,18 +273,15 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
   const [isVerifying, setIsVerifying] = useState(false);
   const { toast } = useToast();
 
-  // Keyboard shortcut listener (Ctrl+Shift+A or Cmd+Shift+A)
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
         e.preventDefault();
         if (currentUser.isAuthor) {
-          // Logout if already in author mode
           setCurrentUser(getRandomAnonymousUser());
-          toast({ title: "Logged out", description: "Switched to anonymous mode" });
+          toast({ title: 'Logged out', description: 'Switched to anonymous mode' });
           sessionStorage.removeItem('isAuthor');
         } else {
-          // Show password dialog
           setShowPasswordDialog(true);
         }
       }
@@ -279,7 +293,7 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
 
   const handlePasswordSubmit = async () => {
     if (!password.trim()) {
-      toast({ title: "Error", description: "Please enter password", variant: "destructive" });
+      toast({ title: 'Error', description: 'Please enter password', variant: 'destructive' });
       return;
     }
 
@@ -294,23 +308,20 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
       const data = await response.json();
 
       if (data.success) {
-        // Close dialog and reset password immediately
         setShowPasswordDialog(false);
         setPassword('');
         setIsVerifying(false);
-
-        // Update user state and show toast
         setCurrentUser(getAuthorProfile());
         sessionStorage.setItem('isAuthor', 'true');
-        toast({ title: "Success", description: "Author mode activated" });
+        toast({ title: 'Success', description: 'Author mode activated' });
       } else {
         setIsVerifying(false);
-        toast({ title: "Error", description: data.message || "Invalid password", variant: "destructive" });
+        toast({ title: 'Error', description: data.message || 'Invalid password', variant: 'destructive' });
       }
     } catch (error) {
       console.error('Password verification error:', error);
       setIsVerifying(false);
-      toast({ title: "Error", description: "Failed to verify password", variant: "destructive" });
+      toast({ title: 'Error', description: 'Failed to verify password', variant: 'destructive' });
     }
   };
 
@@ -320,8 +331,8 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
       const fetchedComments = await getCommentsFromAppwrite(articleSlug);
       setComments(fetchedComments);
     } catch (error) {
-      console.error("Failed to fetch comments:", error);
-      toast({ title: "Error", description: "Could not load comments.", variant: "destructive" });
+      console.error('Failed to fetch comments:', error);
+      toast({ title: 'Error', description: 'Could not load comments.', variant: 'destructive' });
       setComments([]);
     } finally {
       setIsLoading(false);
@@ -335,7 +346,7 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
   }, [articleSlug, fetchComments]);
 
   const handleReplyToggle = (commentId: string) => {
-    setOpenReplyFormId(prevId => (prevId === commentId ? null : commentId));
+    setOpenReplyFormId((prevId) => (prevId === commentId ? null : commentId));
   };
 
   const isReplyFormOpen = (commentId: string): boolean => {
@@ -343,7 +354,7 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
   };
 
   const totalCommentsCount = comments.reduce((acc, c) => {
-    let count = 1; // count the comment itself
+    let count = 1;
     const countReplies = (replies?: CommentType[]): number => {
       if (!replies) return 0;
       return replies.reduce((sum, reply) => sum + 1 + countReplies(reply.replies), 0);
@@ -351,7 +362,6 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
     count += countReplies(c.replies);
     return acc + count;
   }, 0);
-
 
   return (
     <section aria-labelledby="comments-heading" className="mt-12 py-8 border-t border-border">
@@ -367,7 +377,6 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
 
       <Separator className="my-8" />
 
-      {/* Password Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
         <DialogContent>
           <DialogHeader>
@@ -444,4 +453,3 @@ export function CommentSection({ articleSlug }: CommentSectionProps) {
     </section>
   );
 }
-

@@ -3,6 +3,9 @@ import Razorpay from 'razorpay';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Creates a Razorpay payment order in INR for supporting BagOfWords.
+ */
 export async function POST(req: NextRequest) {
   try {
     const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -22,16 +25,12 @@ export async function POST(req: NextRequest) {
     });
 
     const { amount } = await req.json();
-
-    // amount must be a positive number
     const parsedAmount = parseFloat(amount);
     if (!parsedAmount || parsedAmount <= 0) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
-    // Razorpay amounts are in the smallest currency unit (paise for INR)
     const amountInPaise = Math.round(parsedAmount * 100);
-
     const order = await razorpay.orders.create({
       amount: amountInPaise,
       currency: 'INR',

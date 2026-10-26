@@ -1,9 +1,11 @@
-import type { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://bagofwords.tech';
 
+/**
+ * Generates the XML sitemap metadata listing key static pages and published articles.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Keep sitemap simple and static during build
   const staticPages = [
     {
       url: `${BASE_URL}/`,
@@ -31,13 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Add article pages statically to avoid import issues during build
   const articleSlugs = [
     'google-imagen-3-002',
-    'diffusion-models-explained'
+    'diffusion-models-explained',
   ];
 
-  const articlePages = articleSlugs.map(slug => ({
+  const articlePages = articleSlugs.map((slug) => ({
     url: `${BASE_URL}/articles/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
@@ -46,3 +47,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [...staticPages, ...articlePages];
 }
+

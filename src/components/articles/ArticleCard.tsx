@@ -3,13 +3,19 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Clock, TagIcon } from 'lucide-react';
+import type { Article } from '@/types';
 
 interface ArticleCardProps {
-  article: any;
+  article: Article;
   priority?: boolean;
 }
 
+/**
+ * Renders a card preview of an article with hero image, title, excerpt, metadata, and tags.
+ */
 export function ArticleCard({ article, priority = false }: ArticleCardProps) {
+  const dateStr = article.publishDate || article.createdAt || article.$createdAt;
+
   return (
     <Card className="overflow-hidden flex flex-col h-full shadow-lg hover:shadow-xl hover:shadow-accent/40 transition-shadow duration-300">
       <CardHeader className="p-0">
@@ -35,14 +41,16 @@ export function ArticleCard({ article, priority = false }: ArticleCardProps) {
           </Link>
         </CardTitle>
         <p className="text-muted-foreground text-sm mb-4">{article.excerpt}</p>
-         <div className="flex items-center text-xs text-muted-foreground mb-1">
-          <CalendarDays className="h-4 w-4 mr-1.5" />
-          {new Date(article.publishDate || article.createdAt || article.$createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </div>
+        {dateStr && (
+          <div className="flex items-center text-xs text-muted-foreground mb-1">
+            <CalendarDays className="h-4 w-4 mr-1.5" />
+            {new Date(dateStr).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </div>
+        )}
         <div className="flex items-center text-xs text-muted-foreground">
           <Clock className="h-4 w-4 mr-1.5" />
           {article.readingTime}
@@ -50,8 +58,8 @@ export function ArticleCard({ article, priority = false }: ArticleCardProps) {
       </CardContent>
       <CardFooter className="p-6 pt-0">
         <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{article.category || "Uncategorized"}</Badge>
-          {article.tags.slice(0, 2).map((tag: string) => (
+          <Badge variant="secondary">{article.category || 'Uncategorized'}</Badge>
+          {article.tags?.slice(0, 2).map((tag: string) => (
             <Badge key={tag} variant="outline" className="flex items-center gap-1">
               <TagIcon className="h-3 w-3" />
               {tag}
@@ -62,3 +70,4 @@ export function ArticleCard({ article, priority = false }: ArticleCardProps) {
     </Card>
   );
 }
+

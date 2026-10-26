@@ -1,6 +1,15 @@
 
+import type { Metadata } from 'next';
 import { ShieldAlert } from 'lucide-react';
 
+export const metadata: Metadata = {
+  title: 'Privacy Policy | BagOfWords',
+  description: 'Privacy Policy detailing data collection, use, and protection on BagOfWords.',
+};
+
+/**
+ * Privacy Policy page displaying terms of data collection and usage.
+ */
 export default function PrivacyPolicyPage() {
   const policyContent = `
     <h1>Privacy Policy</h1>
@@ -183,3 +192,4 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
+

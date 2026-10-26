@@ -1,11 +1,4 @@
-/**
- * Email Dispatcher for Cloudflare
- * Supports Resend API (HTTP REST API, zero external dependencies, works at the Edge)
- * or logging fallback if RESEND_API_KEY is not yet configured.
- */
-
 const OWNER_EMAIL = process.env.OWNER_EMAIL || 'adil@bagofwords.tech';
-const SENDER_EMAIL = process.env.SENDER_EMAIL || 'noreply@bagofwords.tech';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bagofwords.tech';
 
 interface SendMailParams {
@@ -16,7 +9,6 @@ interface SendMailParams {
   from?: string;
 }
 
-// Polyfill Uint8Array.prototype.toBase64 if absent in the runtime
 if (typeof Uint8Array !== 'undefined' && typeof (Uint8Array.prototype as any).toBase64 !== 'function') {
   (Uint8Array.prototype as any).toBase64 = function () {
     let binary = '';
@@ -62,12 +54,14 @@ async function getEmailConfig() {
   };
 }
 
+/**
+ * Dispatches an email using Lark Suite SMTP (port 465 over Cloudflare Worker Sockets) with Resend and mock fallback.
+ */
 export async function sendEmail({ to, subject, html, text, from }: SendMailParams): Promise<boolean> {
   const config = await getEmailConfig();
   const senderAddress = from || config.senderEmail;
   const recipients = Array.isArray(to) ? to : [to];
 
-  // 1. Try Lark Suite SMTP (Port 465 SSL/TLS via Cloudflare Worker Sockets)
   if (config.smtpPassword) {
     try {
       const { sendLarkMail } = await import('./lark-smtp');
@@ -87,13 +81,11 @@ export async function sendEmail({ to, subject, html, text, from }: SendMailParam
       return true;
     } catch (smtpErr: any) {
       console.error('[Lark Suite SMTP Error]', smtpErr?.message || smtpErr);
-      // Fall through to Resend or Mock if SMTP fails
     }
   } else {
     console.warn('[Lark Suite SMTP] SMTP_PASSWORD is not configured in environment or Cloudflare secrets.');
   }
 
-  // 2. Try Resend HTTP API
   if (config.resendApiKey) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
@@ -117,7 +109,7 @@ export async function sendEmail({ to, subject, html, text, from }: SendMailParam
         return false;
       }
 
-      console.log(`[Resend API] Email sent successfully via HTTP`);
+      console.log('[Resend API] Email sent successfully via HTTP');
       return true;
     } catch (err) {
       console.error('[Resend API Error]', err);
@@ -125,7 +117,6 @@ export async function sendEmail({ to, subject, html, text, from }: SendMailParam
     }
   }
 
-  // 3. Fallback: Mock logging for local development or when credentials are not configured
   console.log(`[Email Mock] Neither SMTP_PASSWORD nor RESEND_API_KEY configured. Simulated send:
     To: ${recipients.join(', ')}
     Subject: ${subject}
@@ -134,7 +125,7 @@ export async function sendEmail({ to, subject, html, text, from }: SendMailParam
 }
 
 /**
- * 1. Notification to owner on contact form submission
+ * Sends an email notification to the site owner upon a new contact form message.
  */
 export async function sendContactNotification(name: string, email: string, message: string, id: string) {
   const subject = `New Contact Form Submission from ${name}`;
@@ -173,7 +164,7 @@ ${message}
 }
 
 /**
- * 2. Welcome email to newly subscribed user
+ * Sends an automated welcome email with unsubscribe links to newly subscribed readers.
  */
 export async function sendWelcomeEmail(email: string, name?: string) {
   const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?email=${encodeURIComponent(email)}`;
@@ -220,7 +211,7 @@ export async function sendWelcomeEmail(email: string, name?: string) {
 }
 
 /**
- * 3. Alert owner about a new subscriber
+ * Sends a notification email to the owner when a new subscriber joins the newsletter.
  */
 export async function sendNewSubscriberAlert(email: string) {
   const subject = `🎉 New Subscriber: ${email}`;

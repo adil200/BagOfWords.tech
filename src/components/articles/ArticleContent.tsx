@@ -7,6 +7,9 @@ interface ArticleContentProps {
   content: string;
 }
 
+/**
+ * Renders HTML article content and dynamically enhances <pre> code blocks with interactive copy buttons.
+ */
 export function ArticleContent({ content }: ArticleContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -14,19 +17,16 @@ export function ArticleContent({ content }: ArticleContentProps) {
   useEffect(() => {
     if (!contentRef.current) return;
 
-    // Find all code blocks (pre > code elements)
     const codeBlocks = contentRef.current.querySelectorAll('pre');
 
     codeBlocks.forEach((pre) => {
-      // Check if button already exists
       if (pre.querySelector('.copy-code-button')) return;
 
-      // Add relative positioning to pre
       pre.style.position = 'relative';
-      
-      // Create copy button
+
       const copyButton = document.createElement('button');
-      copyButton.className = 'copy-code-button absolute top-2 right-2 text-gray-400 hover:text-gray-200 transition-colors opacity-0 group-hover:opacity-100';
+      copyButton.className =
+        'copy-code-button absolute top-2 right-2 text-gray-400 hover:text-gray-200 transition-colors opacity-0 group-hover:opacity-100';
       copyButton.setAttribute('aria-label', 'Copy code');
       copyButton.style.cssText = `
         background: transparent;
@@ -44,7 +44,6 @@ export function ArticleContent({ content }: ArticleContentProps) {
         </svg>
       `;
 
-      // Add click handler
       copyButton.addEventListener('click', async (e) => {
         e.preventDefault();
         const code = pre.querySelector('code');
@@ -52,15 +51,13 @@ export function ArticleContent({ content }: ArticleContentProps) {
           const text = code.textContent || '';
           try {
             await navigator.clipboard.writeText(text);
-            
-            // Change icon to checkmark
+
             copyButton.innerHTML = `
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
             `;
-            
-            // Reset after 2 seconds
+
             setTimeout(() => {
               copyButton.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -74,7 +71,7 @@ export function ArticleContent({ content }: ArticleContentProps) {
               description: 'Code copied to clipboard',
               duration: 2000,
             });
-          } catch (err) {
+          } catch {
             toast({
               description: 'Failed to copy code',
               variant: 'destructive',
@@ -84,19 +81,17 @@ export function ArticleContent({ content }: ArticleContentProps) {
         }
       });
 
-      // Add group class to pre for hover effect
       pre.classList.add('group');
-      
-      // Append button to pre
       pre.appendChild(copyButton);
     });
   }, [content, toast]);
 
   return (
-    <div 
+    <div
       ref={contentRef}
       className="prose prose-lg max-w-none article-content"
       dangerouslySetInnerHTML={{ __html: content }}
     />
   );
 }
+

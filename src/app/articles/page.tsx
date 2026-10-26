@@ -1,29 +1,31 @@
-
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Search, LayoutGrid, List } from 'lucide-react';
 import { categories } from '@/lib/data';
 import { getPublishedArticles } from '@/lib/article-service';
 import { ArticleCard } from '@/components/articles/ArticleCard';
 import { ArticleListItem } from '@/components/articles/ArticleListItem';
 import { ArticleFilters } from '@/components/articles/ArticleFilters';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ListFilter, Search, LayoutGrid, List, RotateCcw } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Label } from '@/components/ui/label';
-import Link from 'next/link';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 60;
 
-export default async function ArticlesPage({
-  searchParams,
-}: {
+export const metadata: Metadata = {
+  title: 'Articles | BagOfWords',
+  description: 'Explore in-depth articles on Artificial Intelligence, Machine Learning, and Natural Language Processing.',
+};
+
+interface ArticlesPageProps {
   searchParams?: Promise<{
     query?: string;
     category?: string;
@@ -31,7 +33,14 @@ export default async function ArticlesPage({
     view?: 'grid' | 'list';
     page?: string;
   }>;
-}) {
+}
+
+const ARTICLES_PER_PAGE = 9;
+
+/**
+ * Renders the articles catalog with category filtering, search, sorting, and pagination.
+ */
+export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
   const params = await searchParams;
   const currentPage = Number(params?.page) || 1;
   const currentView = params?.view || 'grid';
@@ -40,24 +49,21 @@ export default async function ArticlesPage({
   const selectedCategory = params?.category || 'all';
   const sortBy = params?.sortBy || 'date_desc';
 
-  // Fetch articles from database (with automatic fallback to data.ts)
   const allArticles = await getPublishedArticles();
-  let processedArticles: any[] = [...allArticles]; // Use a mutable copy
+  let processedArticles: any[] = [...allArticles];
 
-  // 1. Filter by search query (title and excerpt)
   if (searchTerm) {
-    processedArticles = processedArticles.filter(article =>
-      article.title.toLowerCase().includes(searchTerm) ||
-      article.excerpt.toLowerCase().includes(searchTerm)
+    processedArticles = processedArticles.filter(
+      (article) =>
+        article.title.toLowerCase().includes(searchTerm) ||
+        article.excerpt.toLowerCase().includes(searchTerm)
     );
   }
 
-  // 2. Filter by category
   if (selectedCategory && selectedCategory !== 'all') {
-    processedArticles = processedArticles.filter(article => article.category === selectedCategory);
+    processedArticles = processedArticles.filter((article) => article.category === selectedCategory);
   }
 
-  // 3. Sort articles
   switch (sortBy) {
     case 'date_asc':
       processedArticles.sort((a, b) => {
@@ -80,9 +86,6 @@ export default async function ArticlesPage({
   }
 
   const filteredArticles = processedArticles;
-  
-  // Pagination logic
-  const ARTICLES_PER_PAGE = 9; // 3 columns × 3 rows
   const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
   const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
   const endIndex = startIndex + ARTICLES_PER_PAGE;
@@ -117,7 +120,6 @@ export default async function ArticlesPage({
         </p>
       </header>
 
-      {/* Filters and Search */}
       <section className="p-6 bg-card rounded-lg shadow">
         <ArticleFilters categories={categories} currentView={currentView} />
         <Separator className="my-6" />
@@ -127,12 +129,22 @@ export default async function ArticlesPage({
           </p>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">View:</span>
-            <Button variant={currentView === 'grid' ? 'secondary' : 'ghost'} size="icon" aria-label="Grid view" asChild>
+            <Button
+              variant={currentView === 'grid' ? 'secondary' : 'ghost'}
+              size="icon"
+              aria-label="Grid view"
+              asChild
+            >
               <Link href={createViewLink('grid')}>
                 <LayoutGrid className="h-5 w-5" />
               </Link>
             </Button>
-            <Button variant={currentView === 'list' ? 'secondary' : 'ghost'} size="icon" aria-label="List view" asChild>
+            <Button
+              variant={currentView === 'list' ? 'secondary' : 'ghost'}
+              size="icon"
+              aria-label="List view"
+              asChild
+            >
               <Link href={createViewLink('list')}>
                 <List className="h-5 w-5" />
               </Link>
@@ -141,7 +153,6 @@ export default async function ArticlesPage({
         </div>
       </section>
 
-      {/* Articles Grid/List */}
       {paginatedArticles.length > 0 ? (
         <section>
           {currentView === 'grid' ? (
@@ -151,7 +162,7 @@ export default async function ArticlesPage({
               ))}
             </div>
           ) : (
-            <div className="bg-card rounded-lg shadow-md overflow-hidden"> {/* Container for list view */}
+            <div className="bg-card rounded-lg shadow-md overflow-hidden">
               {paginatedArticles.map((article) => (
                 <ArticleListItem key={article.slug} article={article} />
               ))}
@@ -162,83 +173,64 @@ export default async function ArticlesPage({
         <section className="text-center py-12">
           <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2">No Articles Found</h2>
-          <p className="text-muted-foreground">
-            Try adjusting your search or filters.
-          </p>
+          <p className="text-muted-foreground">Try adjusting your search or filters.</p>
         </section>
       )}
 
-      {/* Pagination */}
       {filteredArticles.length > ARTICLES_PER_PAGE && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious 
+              <PaginationPrevious
                 href={currentPage > 1 ? createPageLink(currentPage - 1) : '#'}
                 aria-disabled={currentPage === 1}
                 className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
               />
             </PaginationItem>
-            
-            {/* First page */}
+
             {totalPages > 0 && (
               <PaginationItem>
-                <PaginationLink 
-                  href={createPageLink(1)} 
-                  isActive={currentPage === 1}
-                >
+                <PaginationLink href={createPageLink(1)} isActive={currentPage === 1}>
                   1
                 </PaginationLink>
               </PaginationItem>
             )}
 
-            {/* Ellipsis before current page range */}
             {currentPage > 3 && (
               <PaginationItem>
                 <PaginationEllipsis />
               </PaginationItem>
             )}
 
-            {/* Pages around current page */}
             {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter(page => {
-                // Show pages near current page
-                if (page === 1 || page === totalPages) return false; // Already shown
+              .filter((page) => {
+                if (page === 1 || page === totalPages) return false;
                 return page >= currentPage - 1 && page <= currentPage + 1;
               })
-              .map(page => (
+              .map((page) => (
                 <PaginationItem key={page}>
-                  <PaginationLink 
-                    href={createPageLink(page)} 
-                    isActive={currentPage === page}
-                  >
+                  <PaginationLink href={createPageLink(page)} isActive={currentPage === page}>
                     {page}
                   </PaginationLink>
                 </PaginationItem>
-              ))
-            }
+              ))}
 
-            {/* Ellipsis after current page range */}
             {currentPage < totalPages - 2 && (
               <PaginationItem>
                 <PaginationEllipsis />
               </PaginationItem>
             )}
 
-            {/* Last page */}
             {totalPages > 1 && (
               <PaginationItem>
-                <PaginationLink 
-                  href={createPageLink(totalPages)} 
-                  isActive={currentPage === totalPages}
-                >
+                <PaginationLink href={createPageLink(totalPages)} isActive={currentPage === totalPages}>
                   {totalPages}
                 </PaginationLink>
               </PaginationItem>
             )}
 
             <PaginationItem>
-              <PaginationNext 
+              <PaginationNext
                 href={currentPage < totalPages ? createPageLink(currentPage + 1) : '#'}
                 aria-disabled={currentPage === totalPages}
                 className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}

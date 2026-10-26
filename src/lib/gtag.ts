@@ -1,7 +1,8 @@
-// lib/gtag.ts
 export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "";
 
-// https://developers.google.com/analytics/devguides/collection/gtagjs/pages
+/**
+ * Sends a pageview event to Google Analytics.
+ */
 export const pageview = (url: URL | string): void => {
   if (typeof window.gtag === 'function' && GA_TRACKING_ID) {
     window.gtag("config", GA_TRACKING_ID, {
@@ -14,10 +15,12 @@ type GTagEvent = {
   action: string;
   category: string;
   label: string;
-  value?: number; // Value is optional for some events
+  value?: number;
 };
 
-// https://developers.google.com/analytics/devguides/collection/gtagjs/events
+/**
+ * Dispatches a custom tracking event to Google Analytics.
+ */
 export const event = ({ action, category, label, value }: GTagEvent): void => {
   if (typeof window.gtag === 'function' && GA_TRACKING_ID) {
     window.gtag("event", action, {
@@ -28,7 +31,6 @@ export const event = ({ action, category, label, value }: GTagEvent): void => {
   }
 };
 
-// Add gtag to window typescript definition
 declare global {
   interface Window {
     gtag?: (

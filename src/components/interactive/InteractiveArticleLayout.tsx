@@ -1,19 +1,18 @@
 import React from 'react';
-import { ScrollyProvider } from './Scrollytelling';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CalendarDays, Clock, Sparkles, TagIcon } from 'lucide-react';
+import { CalendarDays, Clock, TagIcon } from 'lucide-react';
+import { ScrollyProvider } from './Scrollytelling';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { getAuthorById } from '@/lib/data';
 import { ArticleSummaryGenerator } from '@/components/articles/ArticleSummaryGenerator';
+import { getR2AssetUrl } from '@/lib/file-mapping';
 
 export interface InteractiveArticleTag {
   label: string;
-  /** 'primary' = muted white pill, 'accent' = cyan pill */
   variant: 'primary' | 'accent';
-  /** Optional: link to /articles?query=<tag>. Defaults to label. */
   queryOverride?: string;
 }
 
@@ -22,29 +21,22 @@ interface InteractiveArticleLayoutProps {
   subtitle?: string;
   date: string;
   readingTime: string;
-  /** Tags displayed above the title as styled badges (also linked to /articles search) */
   tags: InteractiveArticleTag[];
-  /** Footer tags shown after the article content, linked to /articles?query=<tag> */
   footerTags?: string[];
   articleSlug: string;
   authorId: string;
-  /**
-   * Plain-text summary of the article's content — passed to the AI summariser.
-   * For interactive articles (no MDX body), provide a text description of what
-   * the article covers so the AI has something meaningful to work with.
-   */
   articleContent: string;
-  /** Optional YouTube video URL to display below the summary block */
   youtubeVideoUrl?: string;
   scrollyTextContent?: React.ReactNode;
   scrollyVisualizerContent?: React.ReactNode;
   children?: React.ReactNode;
 }
 
-import { getR2AssetUrl } from '@/lib/file-mapping';
-
 const AVATAR_URL = getR2AssetUrl('adil (1).png');
 
+/**
+ * Layout wrapper for scrollytelling articles, supporting interactive side-by-side visualizers, author bio, and discussion.
+ */
 export function InteractiveArticleLayout({
   title,
   subtitle,
@@ -114,15 +106,14 @@ export function InteractiveArticleLayout({
       />
       {youtubeVideoUrl && (
         <div className="w-full aspect-video rounded-xl overflow-hidden shadow-md border border-accent/30">
-          <iframe 
+          <iframe
             className="w-full h-full"
-            src={youtubeVideoUrl} 
-            title="YouTube video player" 
-            frameBorder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-            referrerPolicy="strict-origin-when-cross-origin" 
+            src={youtubeVideoUrl}
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
-          ></iframe>
+          />
         </div>
       )}
     </>
@@ -133,12 +124,10 @@ export function InteractiveArticleLayout({
       {isIntegratedLayout ? (
         <ScrollyProvider>
           <div className="flex flex-col lg:flex-row lg:items-stretch lg:gap-10">
-            {/* Left Column */}
             <div className="w-full lg:w-1/2">
               <header className="mb-12">
                 {LeftHeader}
               </header>
-              {/* Mobile RightHeader: shown below title on mobile */}
               <div className="flex lg:hidden flex-col gap-6 mb-12">
                 {RightHeader}
               </div>
@@ -147,7 +136,6 @@ export function InteractiveArticleLayout({
               </div>
             </div>
 
-            {/* Right Column (Desktop Only) */}
             <div className="hidden lg:block lg:w-1/2 mt-6 lg:mt-0 relative">
               <div className="flex flex-col gap-6 mb-12">
                 {RightHeader}
@@ -162,7 +150,6 @@ export function InteractiveArticleLayout({
         </ScrollyProvider>
       ) : (
         <>
-          {/* ── Header ── */}
           <header className="mb-12">
             <div className="flex flex-col lg:flex-row lg:items-start lg:gap-10">
               <div className="flex-1 min-w-0">
@@ -173,17 +160,13 @@ export function InteractiveArticleLayout({
               </div>
             </div>
           </header>
-
-          {/* ── Scrollytelling content (passed as children) ── */}
           {children}
         </>
       )}
 
-      {/* ── Footer ── */}
       <div className="mt-16">
         <Separator className="mb-10" />
 
-        {/* Footer tags */}
         {footerTags && footerTags.length > 0 && (
           <div className="mb-10 pt-2">
             <h3 className="text-md font-semibold mb-3 text-muted-foreground flex items-center">
@@ -204,7 +187,6 @@ export function InteractiveArticleLayout({
           </div>
         )}
 
-        {/* Author bio */}
         {authorDetails?.bio && (
           <Link href="/about#about-the-author" className="block hover:opacity-90 transition-opacity w-full lg:w-2/3 mb-8">
             <section className="bg-card p-6 rounded-lg shadow-sm border">
@@ -227,7 +209,6 @@ export function InteractiveArticleLayout({
           </Link>
         )}
 
-        {/* Comments */}
         <div className="w-full lg:w-2/3">
           <CommentSection articleSlug={articleSlug} />
         </div>
@@ -235,3 +216,4 @@ export function InteractiveArticleLayout({
     </article>
   );
 }
+

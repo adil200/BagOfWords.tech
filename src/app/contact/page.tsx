@@ -13,6 +13,9 @@ import { checkSpam } from '@/services/spam-filter';
 import { submitContactForm } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
+/**
+ * Renders the Contact page with form validation, spam protection, and social links.
+ */
 export default function ContactPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -45,7 +48,11 @@ export default function ContactPage() {
       if (spamResult.isSpam) {
         setStatus('spam');
         setErrorMessage('Your message appears to be spam and was not sent.');
-        toast({ title: 'Spam Detected', description: 'Your message appears to be spam and was not sent.', variant: 'destructive' });
+        toast({
+          title: 'Spam Detected',
+          description: 'Your message appears to be spam and was not sent.',
+          variant: 'destructive',
+        });
         return;
       }
     } catch (error) {
@@ -64,7 +71,7 @@ export default function ContactPage() {
         setStatus('success');
         toast({
           title: 'Message Sent!',
-          description: 'Your message has been sent successfully. I\'ll be in touch soon.'
+          description: "Your message has been sent successfully. I'll be in touch soon.",
         });
         setName('');
         setEmail('');
@@ -75,7 +82,7 @@ export default function ContactPage() {
         toast({
           title: 'Submission Error',
           description: result.message || 'Failed to send message.',
-          variant: 'destructive'
+          variant: 'destructive',
         });
       }
     } catch (error) {
@@ -85,157 +92,150 @@ export default function ContactPage() {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     }
   };
 
   return (
-      <div className="container mx-auto px-4 py-8">
-        {/* Centered Header */}
-        <header className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold text-primary mb-4">Contact Me</h1>
-          <p className="text-xl text-muted-foreground">
-            I'm here to help and answer any question you might have.
-          </p>
-        </header>
+    <div className="container mx-auto px-4 py-8">
+      <header className="text-center mb-12">
+        <h1 className="text-5xl font-extrabold text-primary mb-4">Contact Me</h1>
+        <p className="text-xl text-muted-foreground">
+          I'm here to help and answer any question you might have.
+        </p>
+      </header>
 
-        <div className="grid lg:grid-cols-2 items-start">
-          {/* Form Section */}
-          <div className="lg:col-span-1 mx-auto lg:mx-0 lg:translate-x-[170px]">
-
+      <div className="grid lg:grid-cols-2 items-start">
+        <div className="lg:col-span-1 mx-auto lg:mx-0 lg:translate-x-[170px]">
           <Card className="shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center">
-                  <Mail className="h-7 w-7 mr-3 text-accent" /> Send Me a Message
-                </CardTitle>
-                <CardDescription>
-                  Fill out the form below and I'll get back to you as soon as possible.
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input
-                          id="name"
-                          name="name"
-                          placeholder="John Doe"
-                          value={name}
-                          onChange={(e) => {
-                            setName(e.target.value);
-                            if (status === 'success') setStatus('idle');
-                          }}
-                          required
-                          className="bg-background focus:border-accent"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
-                      <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="you@example.com"
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (status === 'success') setStatus('idle');
-                          }}
-                          required
-                          className="bg-background focus:border-accent"
-                      />
-                    </div>
-                  </div>
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center">
+                <Mail className="h-7 w-7 mr-3 text-accent" /> Send Me a Message
+              </CardTitle>
+              <CardDescription>
+                Fill out the form below and I'll get back to you as soon as possible.
+              </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleSubmit}>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                        id="message"
-                        name="message"
-                        placeholder="Your message here..."
-                        rows={6}
-                        value={message}
-                        onChange={(e) => {
-                          setMessage(e.target.value);
-                          if (status === 'success') setStatus('idle');
-                        }}
-                        required
-                        className="bg-background focus:border-accent"
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="John Doe"
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        if (status === 'success') setStatus('idle');
+                      }}
+                      required
+                      className="bg-background focus:border-accent"
                     />
                   </div>
-                </CardContent>
-                <CardFooter className="flex flex-col items-stretch gap-4">
-                  {status === 'success' && (
-                      <div className="flex items-center p-3 rounded-md bg-green-500/10 text-green-700 border border-green-500/30">
-                        <CheckCircle className="h-5 w-5 mr-2" />
-                        <p>Your message has been sent successfully! I'll be in touch soon.</p>
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (status === 'success') setStatus('idle');
+                      }}
+                      required
+                      className="bg-background focus:border-accent"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    placeholder="Your message here..."
+                    rows={6}
+                    value={message}
+                    onChange={(e) => {
+                      setMessage(e.target.value);
+                      if (status === 'success') setStatus('idle');
+                    }}
+                    required
+                    className="bg-background focus:border-accent"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col items-stretch gap-4">
+                {status === 'success' && (
+                  <div className="flex items-center p-3 rounded-md bg-green-500/10 text-green-700 border border-green-500/30">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <p>Your message has been sent successfully! I'll be in touch soon.</p>
+                  </div>
+                )}
+                {(status === 'error' || status === 'spam') && errorMessage && (
+                  <div className="flex items-center p-3 rounded-md bg-red-500/10 text-red-700 border border-red-500/30">
+                    <AlertTriangle className="h-5 w-5 mr-2" />
+                    <p>{errorMessage}</p>
+                  </div>
+                )}
+                <Button
+                  type="submit"
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3"
+                  disabled={status === 'submitting' || status === 'success'}
+                >
+                  {status === 'submitting' ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-5 w-5 mr-2" /> Send Message
+                    </>
                   )}
-                  {(status === 'error' || status === 'spam') && errorMessage && (
-                      <div className="flex items-center p-3 rounded-md bg-red-500/10 text-red-700 border border-red-500/30">
-                        <AlertTriangle className="h-5 w-5 mr-2" />
-                        <p>{errorMessage}</p>
-                      </div>
-                  )}
-                  <Button
-                      type="submit"
-                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-3"
-                      disabled={status === 'submitting' || status === 'success'}
-                  >
-                    {status === 'submitting' ? (
-                        <>
-                          <Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending...
-                        </>
-                    ) : (
-                        <>
-                          <Send className="h-5 w-5 mr-2" /> Send Message
-                        </>
-                    )}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </div>
-
-          {/* Image Section - Hidden on mobile/tablet */}
-          <div className="hidden lg:flex flex-col items-center">
-            <div className="relative w-full max-w-md h-80 lg:h-96">
-              <Image
-                  src="/ai-working.svg"
-                  alt="AI Working Illustration"
-                  fill
-                  sizes="400px"
-                  className="object-contain"
-                  style={{ transform: 'translateX(160px) translateY(23px)' }}
-              />
-            </div>
-          </div>
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
         </div>
 
-        {/* Centered Footer Section */}
-        <section className="mt-12 text-center">
-          <h2 className="text-2xl font-semibold text-primary mb-4">Other Ways to Reach Me</h2>
-          <p className="text-muted-foreground mb-2">
-            Email: <a href="mailto:support@BagOfWords.tech" className="text-accent hover:opacity-80">support@BagOfWords.tech</a>
-          </p>
-          <div className="flex justify-center space-x-6 mt-4">
-            <Link href="https://adil.engineer" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent">
-              <Globe className="h-6 w-6" />
-              <span className="sr-only">Portfolio</span>
-            </Link>
-            <Link href="https://www.linkedin.com/in/adilnaib/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent">
-              <Linkedin className="h-6 w-6" />
-              <span className="sr-only">LinkedIn</span>
-            </Link>
-            <Link href="https://github.com/adil200" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent">
-              <Github className="h-6 w-6" />
-              <span className="sr-only">GitHub</span>
-            </Link>
+        <div className="hidden lg:flex flex-col items-center">
+          <div className="relative w-full max-w-md h-80 lg:h-96">
+            <Image
+              src="/ai-working.svg"
+              alt="AI Working Illustration"
+              fill
+              sizes="400px"
+              className="object-contain"
+              style={{ transform: 'translateX(160px) translateY(23px)' }}
+            />
           </div>
-        </section>
+        </div>
       </div>
+
+      <section className="mt-12 text-center">
+        <h2 className="text-2xl font-semibold text-primary mb-4">Other Ways to Reach Me</h2>
+        <p className="text-muted-foreground mb-2">
+          Email: <a href="mailto:support@BagOfWords.tech" className="text-accent hover:opacity-80">support@BagOfWords.tech</a>
+        </p>
+        <div className="flex justify-center space-x-6 mt-4">
+          <Link href="https://adil.engineer" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent">
+            <Globe className="h-6 w-6" />
+            <span className="sr-only">Portfolio</span>
+          </Link>
+          <Link href="https://www.linkedin.com/in/adilnaib/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent">
+            <Linkedin className="h-6 w-6" />
+            <span className="sr-only">LinkedIn</span>
+          </Link>
+          <Link href="https://github.com/adil200" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent">
+            <Github className="h-6 w-6" />
+            <span className="sr-only">GitHub</span>
+          </Link>
+        </div>
+      </section>
+    </div>
   );
-
-
 }

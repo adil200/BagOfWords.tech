@@ -1,20 +1,29 @@
 import type { Author, Category, Article, Comment } from '@/types';
 import { getR2AssetUrl } from './file-mapping';
 
-// Helper functions for Cloudflare R2 URLs
+/**
+ * Returns the Cloudflare R2 asset URL for a given image filename.
+ */
 export const getAppwriteImageUrl = (filename: string) => {
   return getR2AssetUrl(filename);
 };
 
+/**
+ * Generates an optimized Next.js image URL for static HTML articles.
+ */
 export const getOptimizedHtmlImageUrl = (filename: string, width: number = 1080) => {
   const rawUrl = getAppwriteImageUrl(filename);
   if (!rawUrl) return '';
   return `/_next/image?url=${encodeURIComponent(rawUrl)}&w=${width}&q=75`;
 };
 
+/**
+ * Returns the Cloudflare R2 asset URL for a given media file.
+ */
 export const getAppwriteFileUrl = (filename: string) => {
   return getR2AssetUrl(filename);
 };
+
 
 export const authors: Author[] = [
   {
@@ -65,7 +74,7 @@ export const articles: Article[] = [
     category: 'ai-tools-review',
     tags: ['Gemini Diffusion', 'AI Coding Assistant', 'Code Generation', 'AI Development', 'Productivity', 'Gemini'],
     author: authors[0],
-    publishDate: new Date('2025-06-02T00:00:00Z'), // Ensure this is a recent date to be featured
+    publishDate: new Date('2025-06-02T00:00:00Z'),
     readingTime: '7 min read',
     heroImageUrl: getAppwriteImageUrl('diffusion.png'),
     excerpt: "A sneak peek at Gemini Diffusion, an AI coding assistant claiming performance like a future Gemini 2.0 Flash-Lite model but 5x faster, generating hundreds of lines of code in seconds.",
@@ -613,21 +622,26 @@ export const comments: Comment[] = [
   }
 ];
 
-// Helper functions to get data
+/**
+ * Finds a static article by its slug.
+ */
 export const getArticleBySlug = (slug: string): Article | undefined =>
   articles.find((article) => article.slug === slug);
 
+/**
+ * Filters static comments belonging to an article slug.
+ */
 export const getCommentsByArticleSlug = (slug: string): Comment[] =>
-  comments.filter((comment) => comment.articleSlug === slug && !comment.replies?.find(r => r.id === comment.id)); 
+  comments.filter((comment) => comment.articleSlug === slug && !comment.replies?.find((r) => r.id === comment.id));
 
+/**
+ * Finds a category by its slug.
+ */
 export const getCategoryBySlug = (slug: string): Category | undefined =>
   categories.find((category) => category.slug === slug);
-  
+
+/**
+ * Finds an author by their ID.
+ */
 export const getAuthorById = (id: string): Author | undefined =>
   authors.find((author) => author.id === id);
-
-    
-
-
-
-

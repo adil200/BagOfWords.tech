@@ -1,6 +1,15 @@
 
+import type { Metadata } from 'next';
 import { FileText } from 'lucide-react';
 
+export const metadata: Metadata = {
+  title: 'Terms and Conditions | BagOfWords',
+  description: 'Terms and conditions governing the use of BagOfWords website and services.',
+};
+
+/**
+ * Terms and Conditions page outlining user rights, policies, and service rules.
+ */
 export default function TermsAndConditionsPage() {
   const termsContent = `
     <h1>Terms and Conditions</h1>
@@ -106,6 +115,4 @@ export default function TermsAndConditionsPage() {
       </section>
     </div>
   );
-}
-
-    
+}

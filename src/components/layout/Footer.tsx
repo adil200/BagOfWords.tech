@@ -1,18 +1,21 @@
-
 import Link from 'next/link';
+import Image from 'next/image';
 import { Github, Linkedin, Globe, Youtube } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
+/**
+ * Site footer displaying branding, social profiles, navigation links, and legal pages.
+ */
 export function Footer() {
   const currentYear = new Date().getFullYear();
+
   return (
     <footer className="border-t mt-12 py-10 bg-muted/50 text-muted-foreground">
       <div className="container mx-auto px-4 lg:px-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          {/* Column 1: Logo, Slogan, Socials */}
           <div className="space-y-4 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:text-accent transition-colors">
-              <img src="/BagOfWords.svg" alt="BagOfWords Logo" className="h-[3rem] w-auto" />
+              <Image src="/BagOfWords.svg" alt="BagOfWords Logo" width={48} height={48} className="h-12 w-auto" />
               <span>BagOfWords</span>
             </Link>
             <p className="text-sm">
@@ -39,9 +42,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Columns 2 & 3 wrapper for side-by-side on smaller screens */}
           <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {/* Column 2: Navigate */}
             <div className="sm:text-right">
               <h3 className="font-semibold text-primary mb-3">Navigate</h3>
               <ul className="space-y-2 text-sm">
@@ -51,7 +52,6 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Column 3: Company */}
             <div className="sm:text-right">
               <h3 className="font-semibold text-primary mb-3">Company</h3>
               <ul className="space-y-2 text-sm">
@@ -72,6 +72,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
-
-    
+}

@@ -1,13 +1,18 @@
-
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Clock } from 'lucide-react';
+import type { Article } from '@/types';
 
 interface ArticleListItemProps {
-  article: any;
+  article: Article;
 }
 
+/**
+ * Compact list item view for articles in the archive list mode.
+ */
 export function ArticleListItem({ article }: ArticleListItemProps) {
+  const dateStr = article.publishDate || article.createdAt || article.$createdAt;
+
   return (
     <div className="py-4 px-6 border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors">
       <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-x-4 gap-y-2">
@@ -23,16 +28,18 @@ export function ArticleListItem({ article }: ArticleListItemProps) {
         </div>
         <div className="flex-shrink-0 flex flex-col sm:items-end sm:text-right gap-1 text-xs text-muted-foreground mt-1 sm:mt-0">
           <Badge variant="secondary" className="mb-1 w-fit sm:self-end">
-            {article.category || "Uncategorized"}
+            {article.category || 'Uncategorized'}
           </Badge>
-          <div className="flex items-center">
-            <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
-            {new Date(article.publishDate || article.createdAt || article.$createdAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </div>
+          {dateStr && (
+            <div className="flex items-center">
+              <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
+              {new Date(dateStr).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </div>
+          )}
           <div className="flex items-center">
             <Clock className="h-3.5 w-3.5 mr-1.5" />
             {article.readingTime || article.readTime || '5 min read'}
@@ -42,3 +49,4 @@ export function ArticleListItem({ article }: ArticleListItemProps) {
     </div>
   );
 }
+

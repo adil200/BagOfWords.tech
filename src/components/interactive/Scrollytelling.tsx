@@ -13,10 +13,16 @@ const ScrollyContext = createContext<ScrollyContextType>({
   setCurrentStep: () => {},
 });
 
+/**
+ * Access the active scrollytelling step and step transition handler.
+ */
 export function useScrolly() {
   return useContext(ScrollyContext);
 }
 
+/**
+ * Provider context tracking the active visible scrollytelling step index.
+ */
 export function ScrollyProvider({ children }: { children: React.ReactNode }) {
   const [currentStep, setCurrentStep] = useState(0);
   return (
@@ -28,23 +34,26 @@ export function ScrollyProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Step({ children, stepIndex }: { children: React.ReactNode, stepIndex: number }) {
+/**
+ * Step trigger observer that activates stepIndex when scrolled into the center viewport margin.
+ */
+export function Step({ children, stepIndex }: { children: React.ReactNode; stepIndex: number }) {
   const { currentStep, setCurrentStep } = useScrolly();
   const { ref } = useInView({
-    rootMargin: "-45% 0px -45% 0px", // Trigger when fairly central
+    rootMargin: '-45% 0px -45% 0px',
     onChange: (inView) => {
       if (inView) {
         setCurrentStep(stepIndex);
       }
-    }
+    },
   });
 
   const isActive = currentStep === stepIndex;
   const opacityClass = isActive ? 'opacity-100' : 'opacity-100 lg:opacity-40';
 
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className={`min-h-[60vh] flex flex-col justify-center transition-opacity duration-500 py-10 ${opacityClass}`}
     >
       {children}
@@ -52,6 +61,9 @@ export function Step({ children, stepIndex }: { children: React.ReactNode, stepI
   );
 }
 
+/**
+ * Sticky container for side-by-side desktop visualization diagrams.
+ */
 export function ScrollyVisualizer({ children }: { children: React.ReactNode }) {
   return (
     <div className="hidden lg:flex w-1/2 sticky top-24 h-[calc(100vh-6rem)] max-h-[800px] items-center justify-center">
@@ -62,6 +74,9 @@ export function ScrollyVisualizer({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Text column container for scrolling article sections.
+ */
 export function ScrollyText({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full lg:w-1/2 pb-[50vh]">
@@ -69,3 +84,4 @@ export function ScrollyText({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+

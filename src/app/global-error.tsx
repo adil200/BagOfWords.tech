@@ -1,21 +1,22 @@
-"use client";
+'use client';
 
-import NextError from "next/error";
+import NextError from 'next/error';
 
+/**
+ * Root error boundary component catching unhandled root layout errors.
+ * Passes statusCode 0 to NextError for generic error rendering in App Router.
+ */
 export default function GlobalError({
-  error,
+  error: _error,
 }: {
   error: Error & { digest?: string };
 }) {
   return (
     <html lang="en">
       <body>
-        {/* `NextError` is the default Next.js error page component. Its type
-        definition requires a `statusCode` prop. However, since the App Router
-        does not expose status codes for errors, we simply pass 0 to render a
-        generic error message. */}
         <NextError statusCode={0} />
       </body>
     </html>
   );
 }
+

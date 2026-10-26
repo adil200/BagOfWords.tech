@@ -1,19 +1,26 @@
-
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Lightbulb, Users, Target, Mail, Linkedin, Github, Globe } from 'lucide-react';
-import { authors, getAppwriteImageUrl } from '@/lib/data';
-import { getR2AssetUrl } from '@/lib/file-mapping';
+import type { Metadata } from 'next';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Target, Users, Mail, Globe, Linkedin, Github } from 'lucide-react';
+import { authors } from '@/lib/data';
+import { getR2AssetUrl } from '@/lib/file-mapping';
 
+export const metadata: Metadata = {
+  title: 'About | BagOfWords',
+  description: 'Learn about BagOfWords, our mission, and founder Adil Naib.',
+};
+
+/**
+ * Renders the About page showcasing the BagOfWords mission, author bio, and contact links.
+ */
 export default function AboutPage() {
-  const adilNaib = authors.find(author => author.name === "Adil Naib");
+  const adilNaib = authors.find((author) => author.name === 'Adil Naib');
   const authorAvatarUrl = getR2AssetUrl('compressedImage (1).jpeg');
 
   return (
-    <div className="max-w-4xl mx-auto py-8 space-y-12 article-content"> {/* Added article-content class here */}
+    <div className="max-w-4xl mx-auto py-8 space-y-12 article-content">
       <header className="text-center pb-8">
         <h1 className="text-5xl font-extrabold text-primary mb-4">About BagOfWords</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -25,8 +32,8 @@ export default function AboutPage() {
         <Card className="shadow-lg">
           <CardContent className="p-8 md:p-10">
             <div className="relative w-full h-64 md:h-80 mb-8 rounded-lg overflow-hidden">
-             <Image
-                src={getAppwriteImageUrl('mission.png')}
+              <Image
+                src={getR2AssetUrl('mission.png')}
                 alt="BagOfWords Mission"
                 fill
                 sizes="(max-width: 768px) 100vw, 896px"
@@ -59,7 +66,7 @@ export default function AboutPage() {
                   <div className="relative w-40 h-40 md:w-full md:h-full rounded-full md:rounded-lg overflow-hidden shadow-md">
                     <Image
                       src={authorAvatarUrl}
-                      alt={adilNaib?.name || "Adil Naib"}
+                      alt={adilNaib?.name || 'Adil Naib'}
                       fill
                       sizes="(max-width: 767px) 160px, 33vw"
                       className="object-cover"
@@ -115,10 +122,7 @@ export default function AboutPage() {
           size="lg"
           className="bg-accent hover:bg-accent/90 text-lg py-3 font-medium px-6"
         >
-          <Link
-            href="/contact"
-            style={{ color: "black" }} 
-          >
+          <Link href="/contact" className="text-black">
             Contact Me
           </Link>
         </Button>

@@ -1,10 +1,12 @@
-// src/components/layout/GTagEvents.tsx
 'use client';
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import * as gtag from '@/lib/gtag';
 
+/**
+ * Client listener tracking pageview route transitions in Google Analytics.
+ */
 export default function GTagEvents() {
   const pathname = usePathname();
 
@@ -14,6 +16,6 @@ export default function GTagEvents() {
     }
   }, [pathname]);
 
-  // This component doesn't render anything itself, it just handles events
   return null;
 }
+

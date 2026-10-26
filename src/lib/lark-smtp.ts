@@ -1,9 +1,3 @@
-/**
- * Native Cloudflare Worker SMTP Client for Lark Suite
- * Uses Cloudflare TCP Sockets directly (connect from 'cloudflare:sockets')
- * Runs directly on Cloudflare Workers without external dependencies or Webpack scheme issues.
- */
-
 interface SendLarkMailOptions {
   host?: string;
   port?: number;
@@ -16,7 +10,9 @@ interface SendLarkMailOptions {
   text?: string;
 }
 
-// Encode utf-8 string to base64 safely
+/**
+ * Safely converts a UTF-8 string to a base64 encoded string.
+ */
 function toBase64(str: string): string {
   const bytes = new TextEncoder().encode(str);
   let binary = '';
@@ -26,7 +22,9 @@ function toBase64(str: string): string {
   return btoa(binary);
 }
 
-// Encode subject for MIME header (UTF-8 Q-encoding)
+/**
+ * Encodes an email subject header using MIME UTF-8 Q-encoding when non-ASCII characters exist.
+ */
 function encodeSubject(subject: string): string {
   if (!/[^\x00-\x7F]/.test(subject)) {
     return subject;
@@ -45,6 +43,9 @@ function encodeSubject(subject: string): string {
   return `=?UTF-8?Q?${encoded}?=`;
 }
 
+/**
+ * Sends an email using Cloudflare TCP sockets to connect directly to Lark Suite SMTP.
+ */
 export async function sendLarkMail({
   host = 'smtp.larksuite.com',
   port = 465,
@@ -57,8 +58,6 @@ export async function sendLarkMail({
   text,
 }: SendLarkMailOptions): Promise<boolean> {
   const recipients = Array.isArray(to) ? to : [to];
-
-  // Dynamic import of cloudflare:sockets so Webpack and OpenNext esbuild do not fail at build time
   const socketModulePath = 'cloudflare:sockets';
   let connectFn: any;
   try {
@@ -91,9 +90,7 @@ export async function sendLarkMail({
       if (done) throw new Error('SMTP connection closed prematurely by server');
       response += decoder.decode(value, { stream: true });
       const lines = response.split(/\r?\n/);
-      // Last non-empty line
       const lastLine = lines.filter((l: string) => l.trim().length > 0).pop() || '';
-      // Complete response ends with "XYZ <message>" not "XYZ-<message>"
       if (/^\d{3}\s/.test(lastLine)) {
         if (!lastLine.startsWith(expectedCode)) {
           throw new Error(`SMTP Error (expected ${expectedCode}): ${lastLine}`);
@@ -109,29 +106,19 @@ export async function sendLarkMail({
   }
 
   try {
-    // 1. Initial 220 Greeting
     await readReply('220');
-
-    // 2. EHLO
     await sendCommand('EHLO bagofwords.tech', '250');
-
-    // 3. AUTH LOGIN
     await sendCommand('AUTH LOGIN', '334');
     await sendCommand(toBase64(username), '334');
     await sendCommand(toBase64(password), '235');
-
-    // 4. MAIL FROM
     await sendCommand(`MAIL FROM:<${from}>`, '250');
 
-    // 5. RCPT TO for each recipient
     for (const recipient of recipients) {
       await sendCommand(`RCPT TO:<${recipient}>`, '250');
     }
 
-    // 6. DATA
     await sendCommand('DATA', '354');
 
-    // 7. Compose Email MIME Body
     const boundary = `====_NextPart_${Date.now()}_${Math.random().toString(36).substring(2)}`;
     const headers = [
       `From: "BagOfWords" <${from}>`,
@@ -164,8 +151,6 @@ export async function sendLarkMail({
 
     await writer.write(encoder.encode(fullMessage));
     await readReply('250');
-
-    // 8. QUIT
     await sendCommand('QUIT', '221').catch(() => {});
 
     console.log(`[Lark Suite SMTP] Email sent successfully to: ${recipients.join(', ')}`);

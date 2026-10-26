@@ -1,3 +1,6 @@
+/**
+ * Comment model representing user comments and nested replies on articles.
+ */
 export interface Comment {
   id: string;
   content: string;
@@ -15,6 +18,9 @@ export interface Comment {
   articleSlug?: string;
 }
 
+/**
+ * Author profile metadata.
+ */
 export interface Author {
   id: string;
   name: string;
@@ -22,6 +28,9 @@ export interface Author {
   bio?: string;
 }
 
+/**
+ * Article categorization tag.
+ */
 export interface Category {
   id?: string;
   slug: string;
@@ -29,9 +38,13 @@ export interface Category {
   description?: string;
 }
 
+/**
+ * Article post metadata and content body.
+ */
 export interface Article {
   $id?: string;
   $createdAt?: string;
+  publishedAt?: string;
   title: string;
   slug: string;
   excerpt: string;
@@ -41,12 +54,12 @@ export interface Article {
   author: string | Author;
   coverImage?: string;
   coverImageId?: string;
-  status?: 'draft' | 'published';
+  status?: 'draft' | 'published' | string;
   featured?: boolean;
   readingTime: number | string;
   readTime?: number;
   views?: number;
   createdAt?: string;
-  publishDate?: Date;
+  publishDate?: string | Date;
   heroImageUrl?: string;
 }
